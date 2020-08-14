@@ -1,0 +1,16 @@
+transfer:
+  people: 200
+  currencies:
+    USD
+    EUR
+    GBP
+    CHF
+    RUB
+    DKK
+    SEK
+  max-amount: 100000.00
+  probability-wrong: 0.85
+  probability-generation: 0.9
+  probability-change-amount: 0.5
+file:
+  transfer-amount-lines: 100

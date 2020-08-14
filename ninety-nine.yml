@@ -1,0 +1,54 @@
+version: "3.5"
+
+services:
+  ftpd_server:
+    image: stilliard/pure-ftpd
+    container_name: pure-ftpd
+    hostname: ftp
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    volumes:
+      - "/tmp/data-ftp:/home/username/"
+      - "/tmp/passwd-ftp:/etc/pure-ftpd/passwd"
+    environment:
+      PUBLICHOST: "ftpd_server"
+      FTP_USER_NAME: ninetynine
+      FTP_USER_PASS: ninetynine-rules
+      FTP_USER_HOME: /home/username
+    networks:
+      - ninety_nine_net
+    restart: always
+
+  transferuploader:
+    image: transferuploader
+    depends_on:
+      - ftpd_server
+    links:
+      - ftpd_server
+    networks:
+      - ninety_nine_net
+    environment:
+      FTPSERVER_HOSTNAME: ftpd_server
+      FTPSERVER_USER: ninetynine
+      FTPSERVER_PASSWORD: ninetynine-rules
+      #Uncomment the line below for amount over 10 millions lines to increase heap memory and avoid OutOfMemory Exception
+      #JAVA_OPTS: "-Xms4g -Xmx4g"
+      FILE_TRANSFERAMOUNTLINES: 100000
+      #How many people are created with its iban and its nif
+      #Each person has one nif and four iban (but due to a random process, the ibans may not all be fully used)
+      TRANSFER_PEOPLE: 200
+      #Used currencies to create random amounts
+      #TRANSFER_CURRENCIES: USD,EUR,GBP,CHF,RUB,DKK,SEK
+      #Maximum amount related to transfer
+      #TRANSFER_MAXAMOUNT: 100000
+      #Probability that a part of transfer is malformed (1 - TRANSFER_PROBABILITYWRONG)
+      #TRANSFER_PROBABILITYWRONG: 0.85
+      #Global probability to create a full well fomatted transfer
+      #TRANSFER_PROBABILITYGENERATION: 0.9
+      #Probability that the amount field is in third position or last one
+      #TRANSFER_PROBABILITYCHANGEAMOUNT: 0.5
+networks:
+    ninety_nine_net:
+      name: ninety_nine_net
+
