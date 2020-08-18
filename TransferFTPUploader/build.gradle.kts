@@ -5,6 +5,7 @@ plugins {
     id("java")
     id("org.springframework.boot") version "2.3.3.RELEASE"
     id("io.spring.dependency-management") version "1.0.10.RELEASE"
+    id("com.palantir.docker") version "0.25.0"
     kotlin("jvm") version "1.3.72"
     kotlin("plugin.spring") version "1.3.72"
 }
@@ -15,7 +16,13 @@ java {
 }
 
 group = "com.ninety.nine"
-version = "1.0-SNAPSHOT"
+version = "1.0.0"
+
+docker {
+    name = "transferuploader:$version"
+    this.tag("DockerHub","jtejedor/ninety-nine:$version-transferuploader")
+    this.files(tasks.bootJar.get().outputs)
+}
 
 repositories {
     mavenCentral()
