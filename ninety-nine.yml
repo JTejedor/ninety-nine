@@ -4,7 +4,7 @@ services:
   ftpd_server:
     image: stilliard/pure-ftpd
     container_name: pure-ftpd
-    hostname: ftp
+    hostname: ftp-server
     ports:
       - "21:21"
       - "30000-30009:30000-30009"
@@ -19,9 +19,22 @@ services:
     networks:
       - ninety_nine_net
     restart: always
-
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    hostname: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME:
+      MONGO_INITDB_ROOT_PASSWORD:
+      MONGO_INITDB_DATABASE:
+    ports:
+      - "27017-27019:27017-27019"
+    networks:
+      - ninety_nine_net
+       
   transferuploader:
     image: jtejedor/ninety-nine:1.0.0-transferuploader
+    container_name: tansfer-uploader
     depends_on:
       - ftpd_server
     links:
@@ -48,6 +61,7 @@ services:
       #TRANSFER_PROBABILITYGENERATION: 0.9
       #Probability that the amount field is in third position or last one
       #TRANSFER_PROBABILITYCHANGEAMOUNT: 0.5
+  
 networks:
     ninety_nine_net:
       name: ninety_nine_net
