@@ -21,7 +21,7 @@ services:
     restart: always
 
   transferuploader:
-    image: transferuploader
+    image: jtejedor/ninety-nine:1.0.0-transferuploader
     depends_on:
       - ftpd_server
     links:
