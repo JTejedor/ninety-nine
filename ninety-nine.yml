@@ -24,14 +24,14 @@ services:
     container_name: mongodb
     hostname: mongodb
     environment:
-      MONGO_INITDB_ROOT_USERNAME:
-      MONGO_INITDB_ROOT_PASSWORD:
-      MONGO_INITDB_DATABASE:
+      MONGO_INITDB_ROOT_USERNAME: ninetynine
+      MONGO_INITDB_ROOT_PASSWORD: ninetyninerules
+      MONGO_INITDB_DATABASE: nntransfers
     ports:
       - "27017-27019:27017-27019"
     networks:
       - ninety_nine_net
-       
+
   transferuploader:
     image: jtejedor/ninety-nine:1.0.0-transferuploader
     container_name: tansfer-uploader
@@ -61,8 +61,22 @@ services:
       #TRANSFER_PROBABILITYGENERATION: 0.9
       #Probability that the amount field is in third position or last one
       #TRANSFER_PROBABILITYCHANGEAMOUNT: 0.5
-  
+  mongouploader:
+    image: jtejedor/ninety-nine:1.0.0-mongouploader
+    container_name: mongo-uploader
+    depends_on:
+      - ftpd_server
+      - mongodb
+    links:
+      - ftpd_server
+      - mongodb
+    networks:
+      - ninety_nine_net
+    environment:
+      FTPSERVER_HOSTNAME: ftpd_server
+      FTPSERVER_USER: ninetynine
+      FTPSERVER_PASSWORD: ninetynine-rules
+      SPRING_DATA_MONGODB_URI: mongodb://ninetynine:ninetyninerules@mongodb:27017/nntransfers?authSource=admin
 networks:
     ninety_nine_net:
       name: ninety_nine_net
-
