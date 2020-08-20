@@ -44,7 +44,7 @@ fun main() {
     println("                         _/ |")
     println("                        |___/")
     println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-    println("+++++++++TRANSFER FILE FTP UPLOADER v 1.0-SNAPSHOT++++++++++")
+    println("+++++++++TRANSFER FILE FTP UPLOADER v 1.0.1++++++++++")
 
     SpringApplication.run(Application::class.java)
 

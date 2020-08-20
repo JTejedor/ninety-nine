@@ -1,17 +1,27 @@
 package com.ninety.nine.test.transfer
 
 import com.ninety.nine.main.*
+import io.kotest.core.config.AbstractProjectConfig
+import io.kotest.core.extensions.Extension
 import io.kotest.core.listeners.TestListener
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.*
 import io.kotest.matchers.doubles.shouldBeLessThan
 import io.kotest.matchers.string.shouldMatch
+import io.kotest.spring.SpringAutowireConstructorExtension
 import io.kotest.spring.SpringListener
 import org.iban4j.IbanUtil
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import java.util.concurrent.ThreadLocalRandom
+
+class ProjectConfig : AbstractProjectConfig() {
+    override fun extensions(): List<Extension> = listOf(SpringAutowireConstructorExtension)
+}
 
 fun hasProperLetter() = object : Matcher<String> {
 
@@ -35,16 +45,17 @@ fun hasProperLetter() = object : Matcher<String> {
 }
 
 @SpringBootTest
-@ContextConfiguration(classes = [(TestConfiguration::class)])
-class NIFCustomerGeneratorTest : FunSpec() {
+@ActiveProfiles("test")
+@ContextConfiguration(
+    initializers = [ConfigFileApplicationContextInitializer::class],
+    classes = [TestConfiguration::class, TransferConfiguration::class, NIFGenerator::class]
+)
+class NIFCustomerGeneratorTest(private val generator: NIFGenerator, private val configuration: TransferConfiguration) :
+    FunSpec() {
 
     override fun listeners(): List<TestListener> {
         return listOf(SpringListener)
     }
-
-    private val configuration = TransferConfiguration()
-    private val generator =
-        NIFGenerator(configuration)
 
     init {
         test("Well formatted NIF should have 8 digits and one character").config(invocations = 10) {
@@ -84,16 +95,18 @@ fun isAProperIban() = object : Matcher<String> {
 }
 
 @SpringBootTest
-@ContextConfiguration(classes = [(TestConfiguration::class)])
-class IbanCustomerGeneratorTest : FunSpec() {
+@ActiveProfiles("test")
+@ContextConfiguration(
+    initializers = [ConfigFileApplicationContextInitializer::class],
+    classes = [TestConfiguration::class, TransferConfiguration::class, IbanGenerator::class]
+)
+class IbanCustomerGeneratorTest(
+    private val configuration: TransferConfiguration, private val generator: IbanGenerator
+) : FunSpec() {
 
     override fun listeners(): List<TestListener> {
         return listOf(SpringListener)
     }
-
-    private val configuration = TransferConfiguration()
-    private val generator =
-        IbanGenerator(configuration)
 
     init {
         test("Well formatted IBAN").config(invocations = 50) {
@@ -130,18 +143,25 @@ fun isAInvalidCurrencyName() = object : Matcher<String> {
 }
 
 @SpringBootTest
-@ContextConfiguration(classes = [(TestConfiguration::class)])
-class CurrencyNameCustomerGeneratorTest : FunSpec() {
+@ActiveProfiles("test")
+@ContextConfiguration(
+    initializers = [ConfigFileApplicationContextInitializer::class],
+    classes = [TestConfiguration::class, ConfigFileApplicationContextInitializer::class, CurrencyNameCustomGenerator::class, TransferConfiguration::class]
+)
+class CurrencyNameCustomerGeneratorTest(
+    private val configuration: TransferConfiguration,
+    private val generator: CurrencyNameCustomGenerator
+) : FunSpec() {
 
     override fun listeners(): List<TestListener> {
         return listOf(SpringListener)
     }
 
-    private val configuration = TransferConfiguration()
-    private val generator =
-        CurrencyNameCustomGenerator(configuration)
-
     init {
+        test("Valid currencies") {
+            generator.checkCurrencies()
+        }
+
         test("Valid currency").config(invocations = 50) {
             generator.generateWell() should isAValidCurrencyName(configuration)
         }
@@ -152,38 +172,46 @@ class CurrencyNameCustomerGeneratorTest : FunSpec() {
 }
 
 @SpringBootTest
-@ContextConfiguration(classes = [(TestConfiguration::class)])
-class CurrencyAmountCustomerGeneratorTest : FunSpec() {
+@ActiveProfiles("test")
+@ContextConfiguration(
+    initializers = [ConfigFileApplicationContextInitializer::class],
+    classes = [TestConfiguration::class, ConfigFileApplicationContextInitializer::class, CurrencyAmountCustomGenerator::class, TransferConfiguration::class]
+)
+class CurrencyAmountCustomerGeneratorTest(
+    private val configuration: TransferConfiguration,
+    private val generator: CurrencyAmountCustomGenerator
+) : FunSpec() {
 
     override fun listeners(): List<TestListener> {
         return listOf(SpringListener)
     }
 
-    private val configuration = TransferConfiguration()
-    private val generator =
-        CurrencyAmountCustomGenerator(configuration)
-
     init {
-        test("Valid currency").config(invocations = 50) {
+        test("Valid currency").config(invocations = 1000) {
             generator.generateWell().toDouble() shouldBeLessThan configuration.maxAmount
         }
-        test("Wrong valid currency").config(invocations = 50) {
+        test("Wrong valid currency") {
             generator.generateWrong() shouldBe "N/A"
         }
     }
 }
 
 @SpringBootTest
-@ContextConfiguration(classes = [(TestConfiguration::class)])
-class PersonFieldCustomerGeneratorTest : FunSpec() {
+@ActiveProfiles("test")
+@ContextConfiguration(
+    initializers = [ConfigFileApplicationContextInitializer::class],
+    classes = [TestConfiguration::class,
+        ConfigFileApplicationContextInitializer::class,
+        TransferConfiguration::class,
+        IbanGenerator::class,
+        NIFGenerator::class,
+        PersonFieldCustomGenerator::class]
+)
+class PersonFieldCustomerGeneratorTest(private val generator: PersonFieldCustomGenerator) : FunSpec() {
 
     override fun listeners(): List<TestListener> {
         return listOf(SpringListener)
     }
-
-    private val configuration = TransferConfiguration()
-    private val generator =
-        PersonFieldCustomGenerator(configuration, IbanGenerator(configuration), NIFGenerator(configuration))
 
     init {
         test("Valid Person Field").config(invocations = 50) {
@@ -220,24 +248,24 @@ fun isAValidTransfer() = object : Matcher<String> {
 }
 
 @SpringBootTest
-@ContextConfiguration(classes = [(TestConfiguration::class)])
-class TransferGeneratorTest : FunSpec() {
+@ActiveProfiles("test")
+@ContextConfiguration(
+    initializers = [ConfigFileApplicationContextInitializer::class],
+    classes = [TestConfiguration::class,
+        ConfigFileApplicationContextInitializer::class,
+        TransferConfiguration::class,
+        IbanGenerator::class,
+        NIFGenerator::class,
+        PersonFieldCustomGenerator::class,
+        CurrencyNameCustomGenerator::class,
+        CurrencyAmountCustomGenerator::class,
+        TransferGenerator::class]
+)
+class TransferGeneratorTest(private val generator: TransferGenerator) : FunSpec() {
 
     override fun listeners(): List<TestListener> {
         return listOf(SpringListener)
     }
-
-    private val configuration = TransferConfiguration()
-    private val generator = TransferGenerator(
-        configuration,
-        PersonFieldCustomGenerator(
-            configuration,
-            IbanGenerator(configuration),
-            NIFGenerator(configuration)
-        ),
-        CurrencyNameCustomGenerator(configuration),
-        CurrencyAmountCustomGenerator(configuration)
-    )
 
     init {
         test("Valid Transfer Line").config(invocations = 500) {

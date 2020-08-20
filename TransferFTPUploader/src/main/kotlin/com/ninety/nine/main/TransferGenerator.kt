@@ -4,16 +4,14 @@ import org.iban4j.Iban
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 
 @Component
-@ConstructorBinding
+@EnableConfigurationProperties
 @ConfigurationProperties(prefix="transfer")
 class TransferConfiguration {
     companion object {
@@ -172,6 +170,11 @@ class CurrencyNameCustomGenerator(private val configuration: TransferConfigurati
     CustomGenerator {
     companion object {
         private val BAD_CURRENCY_NAMES = arrayOf("SDU", "RUE", "GB", "CFH", "BUR", "KK", "KES")
+    }
+    fun checkCurrencies(){
+        for(currency in configuration.currencies){
+            java.util.Currency.getInstance(currency)
+        }
     }
 
     override fun generateWell(): String {
