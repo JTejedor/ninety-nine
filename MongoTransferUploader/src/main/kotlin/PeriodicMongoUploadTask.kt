@@ -12,7 +12,7 @@ class PeriodicUploadTask(
     ftpServerConfiguration: FTPServerConfiguration
 ) {
     companion object {
-        const val UPLOAD_TIMEOUT: Long = 1000
+        const val UPLOAD_TIMEOUT: Long = 1000 * 60 * 5 //Each five minutes
     }
 
     init {

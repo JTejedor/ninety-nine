@@ -18,6 +18,12 @@ java {
 group = "com.ninety.nine"
 version = "1.0.0"
 
+docker {
+    name = "mongouploader:$version"
+    this.tag("DockerHub","jtejedor/ninety-nine:$version-mongouploader")
+    this.files(tasks.bootJar.get().outputs)
+}
+
 repositories {
     mavenCentral()
 }
