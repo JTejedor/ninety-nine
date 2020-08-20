@@ -7,8 +7,10 @@ import io.kotest.matchers.Matcher
 import io.kotest.matchers.MatcherResult
 import io.kotest.matchers.should
 import io.kotest.spring.SpringListener
+import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import java.io.File
 
@@ -32,22 +34,24 @@ fun checkFile(fileConfiguration: FileConfiguration) = object : Matcher<String> {
 }
 
 @SpringBootTest
-@ContextConfiguration(classes = [(TestConfiguration::class)])
-class FileGeneratorTest : FunSpec() {
+@ActiveProfiles("test")
+@ContextConfiguration(
+    initializers = [ConfigFileApplicationContextInitializer::class],
+    classes = [TestConfiguration::class,
+        ConfigFileApplicationContextInitializer::class,
+        TransferConfiguration::class,
+        IbanGenerator::class,
+        NIFGenerator::class,
+        PersonFieldCustomGenerator::class,
+        CurrencyNameCustomGenerator::class,
+        CurrencyAmountCustomGenerator::class,
+        TransferGenerator::class]
+)
+class FileGeneratorTest(private val transferGenerator: TransferGenerator): FunSpec() {
 
     override fun listeners(): List<TestListener> {
         return listOf(SpringListener)
     }
-
-    private val transferConfiguration =
-        TransferConfiguration()
-
-    private val transferGenerator = TransferGenerator(
-        transferConfiguration,
-        PersonFieldCustomGenerator(transferConfiguration, IbanGenerator(transferConfiguration), NIFGenerator(transferConfiguration)),
-        CurrencyNameCustomGenerator(transferConfiguration),
-        CurrencyAmountCustomGenerator(transferConfiguration)
-    )
 
     private val fileConfiguration = FileConfiguration()
     init {

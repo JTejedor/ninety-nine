@@ -6,7 +6,7 @@ import org.apache.commons.net.ftp.FTPReply
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component
 import java.io.File
 import java.io.FileInputStream
@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter
 import java.util.concurrent.ThreadLocalRandom
 
 @Component
-@ConstructorBinding
+@EnableConfigurationProperties
 @ConfigurationProperties(prefix="file")
 class FileConfiguration {
     companion object {
@@ -37,7 +37,7 @@ class FileConfiguration {
 }
 
 @Component
-@ConstructorBinding
+@EnableConfigurationProperties
 @ConfigurationProperties(prefix="ftp-server")
 class FTPServerConfiguration {
     companion object {

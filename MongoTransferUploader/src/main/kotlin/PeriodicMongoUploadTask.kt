@@ -1,4 +1,4 @@
-package com.ninety.nine.main
+package com.ninety.nine.main.mongouploader
 
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -8,31 +8,26 @@ import org.springframework.stereotype.Component
 
 @Component
 class PeriodicUploadTask(
-    private val uploader: FileUploader,
-    ftpServerConfiguration: FTPServerConfiguration,
-    fileConfiguration: FileConfiguration,
-    transferConfiguration: TransferConfiguration
+    private val reader: FTPReader,
+    ftpServerConfiguration: FTPServerConfiguration
 ) {
     companion object {
-        const val UPLOAD_TIMEOUT: Long = 1000 * 60 //30 sec
+        const val UPLOAD_TIMEOUT: Long = 1000 * 60 * 5 //Each five minutes
     }
 
     init {
-        fileConfiguration.printConfiguration()
-        transferConfiguration.printConfiguration()
         ftpServerConfiguration.printConfiguration()
     }
 
     @Scheduled(fixedRate = UPLOAD_TIMEOUT)
     fun bankingPartnerFileGenerate() {
-        uploader.uploadFile()
+        reader.read()
     }
 }
 
 @SpringBootApplication
 @EnableScheduling
 class Application
-
 fun main() {
     println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
     println(" _   _ _            _                 _")
@@ -44,7 +39,7 @@ fun main() {
     println("                         _/ |")
     println("                        |___/")
     println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-    println("+++++++++TRANSFER FILE FTP UPLOADER v 1.0.1++++++++++")
+    println("+++++++++MONGO UPLOADER FTP READER v 1.0.0++++++++++")
 
     SpringApplication.run(Application::class.java)
 
