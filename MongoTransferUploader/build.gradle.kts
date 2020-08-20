@@ -6,8 +6,8 @@ plugins {
     id("org.springframework.boot") version "2.3.3.RELEASE"
     id("io.spring.dependency-management") version "1.0.10.RELEASE"
     id("com.palantir.docker") version "0.25.0"
-    kotlin("jvm") version "1.4.0"
-    kotlin("plugin.spring") version "1.4.0"
+    kotlin("jvm") version "1.3.72"
+    kotlin("plugin.spring") version "1.3.72"
 }
 
 java {
@@ -23,21 +23,31 @@ repositories {
 }
 
 dependencies {
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+    annotationProcessor(
+        group = "org.springframework.boot",
+        name = "spring-boot-configuration-processor",
+        version = "2.3.3.RELEASE"
+    )
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
     implementation(group = "org.springframework.boot", name = "spring-boot-starter")
+    implementation(group = "org.springframework.boot", name = "spring-boot-starter-data-mongodb")
     implementation(group = "org.iban4j", name = "iban4j", version = "3.2.1")
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+    implementation(group = "commons-net", name = "commons-net", version = "3.6")
+    testImplementation(
+        group = "org.springframework.boot",
+        name = "spring-boot-starter-test"
+    ) {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
-    // Latest Kotest Version
-    testImplementation ("io.kotest:kotest-runner-junit5-jvm:4.1.3")
-    testImplementation ("io.kotest:kotest-assertions-core-jvm:4.1.3")
-    testImplementation ("io.kotest:kotest-property-jvm:4.1.3")
-    testImplementation ("io.kotest:kotest-extensions-spring:4.1.3")
+    testImplementation(group = "io.kotest", name = "kotest-runner-junit5-jvm", version = "4.1.3")
+    testImplementation(group = "io.kotest", name = "kotest-assertions-core-jvm", version = "4.1.3")
+    testImplementation(group = "io.kotest", name = "kotest-property-jvm", version = "4.1.3")
+    testImplementation(group = "io.kotest", name = "kotest-extensions-spring", version = "4.1.3")
+    testImplementation(group ="io.mockk", name = "mockk", version="1.10.0")
 }
-tasks.withType<KotlinCompile>() {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "11"
     kotlinOptions.allWarningsAsErrors = true
 }

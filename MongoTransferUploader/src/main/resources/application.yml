@@ -1,0 +1,10 @@
+
+ftp-server:
+  hostname: localhost
+  user: ninetynine
+  password: ninetynine-rules
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://ninetynine:ninetyninerules@localhost:27017/nntransfers?authSource=admin
