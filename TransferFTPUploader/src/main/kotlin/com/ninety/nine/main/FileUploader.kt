@@ -11,7 +11,9 @@ import org.springframework.stereotype.Component
 import java.io.File
 import java.io.FileInputStream
 import java.io.PrintWriter
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.ThreadLocalRandom
 
@@ -74,7 +76,13 @@ class FileGenerator(
 
     private fun makeFileName(): String {
         val current = LocalDateTime.now()
-        return current.format(FTP_FILE_DATE_FORMAT).plus(".csv")
+        val localDate: LocalDate = current.toLocalDate()
+        val fiveYearInPastSinceEpoch =localDate.minusYears(5).atStartOfDay().toEpochSecond(ZoneOffset.UTC)
+        val currentSinceEpoch = current.toEpochSecond(ZoneOffset.UTC)
+        val randomTime =
+            ThreadLocalRandom.current().nextLong(fiveYearInPastSinceEpoch, currentSinceEpoch)
+        val usedDate = LocalDateTime.ofEpochSecond(randomTime, 0, ZoneOffset.UTC);
+        return usedDate.format(FTP_FILE_DATE_FORMAT).plus(".csv")
     }
 
     fun create(): String {
@@ -108,7 +116,7 @@ class CustomFtpClient(private val ftpServerConfiguration: FTPServerConfiguration
     }
     private val ftpClient: FTPClient = FTPClient()
     private fun connect() {
-        ftpClient.addProtocolCommandListener(PrintCommandListener(PrintWriter(System.out)))
+        //ftpClient.addProtocolCommandListener(PrintCommandListener(PrintWriter(System.out)))
         ftpClient.connect(ftpServerConfiguration.hostname)
         if (FTPReply.isNegativePermanent(ftpClient.replyCode)) {
             ftpClient.disconnect()

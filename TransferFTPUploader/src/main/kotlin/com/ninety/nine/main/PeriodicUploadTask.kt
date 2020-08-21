@@ -14,7 +14,7 @@ class PeriodicUploadTask(
     transferConfiguration: TransferConfiguration
 ) {
     companion object {
-        const val UPLOAD_TIMEOUT: Long = 1000 * 60 //30 sec
+        const val UPLOAD_TIMEOUT: Long = 1000 * 60 //60 sec
     }
 
     init {
@@ -25,7 +25,9 @@ class PeriodicUploadTask(
 
     @Scheduled(fixedRate = UPLOAD_TIMEOUT)
     fun bankingPartnerFileGenerate() {
-        uploader.uploadFile()
+        for (x in 0..5){
+            uploader.uploadFile()
+        }
     }
 }
 
@@ -44,7 +46,7 @@ fun main() {
     println("                         _/ |")
     println("                        |___/")
     println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-    println("+++++++++TRANSFER FILE FTP UPLOADER v 1.0.1++++++++++")
+    println("+++++++++TRANSFER FILE FTP UPLOADER v 1.0.2++++++++++")
 
     SpringApplication.run(Application::class.java)
 
