@@ -1,0 +1,4 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://ninetynine:ninetyninerules@localhost:27017/nntransfers?authSource=admin
