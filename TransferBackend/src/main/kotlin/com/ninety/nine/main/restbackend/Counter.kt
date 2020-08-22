@@ -81,7 +81,7 @@ class DayAggregationCreator : AggregationComponentCreator {
         return mapOf(
             "year" to Document("\$year", "\$timestamp"),
             "month" to Document("\$month", "\$timestamp"),
-            "day" to Document("\$day", "\$timestamp")
+            "day" to Document("\$dayOfMonth", "\$timestamp")
         )
     }
 }
@@ -156,6 +156,9 @@ class YearAggregationCreator:AggregationComponentCreator{
         val localDate: LocalDate = time.toLocalDate()
         val firstDayOfYear: LocalDate = localDate.with(TemporalAdjusters.firstDayOfYear())
         val endDayOfYear: LocalDate = localDate.with(TemporalAdjusters.lastDayOfYear()).plusDays(1)
+        println(time)
+        println(firstDayOfYear.toString())
+        println(endDayOfYear.toString())
         return  Criteria.where("timestamp")
             .gte(firstDayOfYear.atStartOfDay())
             .lt(endDayOfYear.atStartOfDay())

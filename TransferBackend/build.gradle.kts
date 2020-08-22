@@ -28,8 +28,8 @@ dependencies {
     )
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
+    implementation(group = "org.springframework.boot", name= "spring-boot-starter-data-mongodb-reactive")
+    implementation(group = "org.springframework.boot", name= "spring-boot-starter-webflux")
     implementation(group = "org.iban4j", name = "iban4j", version = "3.2.1")
     testImplementation(
         group = "org.springframework.boot",
