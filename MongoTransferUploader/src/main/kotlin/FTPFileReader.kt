@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 
@@ -55,24 +53,14 @@ final class CustomDateTimeFormatter {
     }
 }
 
-class CustomFTPFileEntryParser(
-    lastProcessedFileName: String = ""
-) : UnixFTPEntryParser() {
+class CustomFTPFileEntryParser : UnixFTPEntryParser() {
     companion object {
 
         private val REGEX = Regex("\\d{8}T\\d{6}Z\\.csv") //yyyyMMdd'T'HHmmss'Z'
     }
-    private val customDateTimeFormatter = CustomDateTimeFormatter()
-    private val lastDateTime = customDateTimeFormatter.format(lastProcessedFileName)
-
 
     private fun isASuitableFile(name: String): Boolean {
-        return name.matches(REGEX) && isAlreadyProcessedFile(name)
-    }
-
-    private fun isAlreadyProcessedFile(name: String): Boolean {
-        val fileLocalDateTime = customDateTimeFormatter.format(name)
-        return fileLocalDateTime > lastDateTime
+        return name.matches(REGEX)
     }
 
     override fun parseFTPEntry(listEntry: String?): FTPFile? {
@@ -86,22 +74,16 @@ class CustomFTPFileEntryParser(
 }
 
 @Component
-final class CustomFtpFileEntryParseFactory(globalStatisticsObservable: ChangedFileGlobalStatisticsObservable) :
-    FTPFileEntryParserFactory, ChangedFileGlobalStatisticsSubscriber {
+final class CustomFtpFileEntryParseFactory: FTPFileEntryParserFactory {
     companion object {
         const val NINETY_NINE_KEY = "ninety-nine"
     }
 
-    init {
-        globalStatisticsObservable.subscribe(this)
-    }
-
     private val defaultFactory: DefaultFTPFileEntryParserFactory = DefaultFTPFileEntryParserFactory()
-    var lastProcessedFile: String = globalStatisticsObservable.provideLastProcessedFile()
 
     override fun createFileEntryParser(key: String?): FTPFileEntryParser {
         if (key == NINETY_NINE_KEY) {
-            return CustomFTPFileEntryParser(lastProcessedFile)
+            return CustomFTPFileEntryParser()
         }
         return defaultFactory.createFileEntryParser(key)
     }
@@ -110,9 +92,6 @@ final class CustomFtpFileEntryParseFactory(globalStatisticsObservable: ChangedFi
         return defaultFactory.createFileEntryParser(config)
     }
 
-    override fun update(fileName: String) {
-        lastProcessedFile = fileName
-    }
 }
 
 @Component
@@ -120,7 +99,8 @@ final class FTPReader(
     private val ftpServerConfiguration: FTPServerConfiguration,
     ftpFileEntryParserFactory: CustomFtpFileEntryParseFactory,
     private val fileExtractor: FileExtractor,
-    private val resultDispatcher: FileExtractorResultDispatcher
+    private val resultDispatcher: FileExtractorResultDispatcher,
+    private val fileFilter: FileFilter
 ) {
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
@@ -149,18 +129,12 @@ final class FTPReader(
         return ftpClient.initiateListParsing(CustomFtpFileEntryParseFactory.NINETY_NINE_KEY, "")
     }
 
-    private fun getNameFile(file: FTPFile): String {
-        return file.name.split(".")[0]
-    }
+    private fun extract(file: FTPFile) {
 
-    private fun extract(file: FTPFile?) {
-        if (file == null) {
-            return
-        }
         logger.info("Start extracting ${file.name}")
         val ftpFullFilePath = getFtpFullPath(file)
         val inputStream = ftpClient.retrieveFileStream(ftpFullFilePath)
-        val result = fileExtractor.extract(getNameFile(file), inputStream)
+        val result = fileExtractor.extract(file.name, inputStream)
         val success = ftpClient.completePendingCommand()
         if (success) {
             resultDispatcher.dispatch(result)
@@ -175,8 +149,9 @@ final class FTPReader(
             ftpClient.setFileType(FTP.ASCII_FILE_TYPE)
             val parser = getFTPParseEngine()
             while (parser.hasNext()) {
-                val files = parser.getNext(25)
-                for (file in files) {
+                val files = parser.getNext(100)
+                val fileList = fileFilter.filter(files)
+                for (file in fileList) {
                     extract(file)
                 }
             }

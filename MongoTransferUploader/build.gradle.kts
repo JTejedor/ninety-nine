@@ -16,7 +16,7 @@ java {
 }
 
 group = "com.ninety.nine"
-version = "1.0.0"
+version = "1.0.1"
 
 docker {
     name = "mongouploader:$version"

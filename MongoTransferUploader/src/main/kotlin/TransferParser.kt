@@ -19,38 +19,32 @@ final class TransferParser(
     private val ibanParser: Parser<Iban>,
     private val nifParser: Parser<String>,
     private val currencyAmountChecker: CurrencyAmountParser,
-    private val customDateTimeFormatter: CustomDateTimeFormatter,
-    globalStatisticsObservable: ChangedFileGlobalStatisticsObservable
-) : Parser<Transfer>,ChangedFileGlobalStatisticsSubscriber {
-    init {
-        globalStatisticsObservable.subscribe(this)
-    }
-    private var timestamp: LocalDateTime = customDateTimeFormatter.format(globalStatisticsObservable.provideLastProcessedFile())
+    private val customDateTimeFormatter: CustomDateTimeFormatter
+) : Parser<Transfer> {
+
+    private var timestamp: LocalDateTime? = null
 
     override fun parse(vararg data: String): Transfer {
-        if (data.size != 1) {
+        if (data.size != 2) {
             throw ParsingTransferException("Transfer checker error - different from 1")
         }
-        if (data[0].isBlank()) {
+        if (data[0].isBlank() || data[1].isBlank()) {
             throw ParsingTransferException("Transfer checker error - data is blank")
         }
-        val dataSplit = data[0].split("\t")
+        timestamp = customDateTimeFormatter.format(data[0])
+        val dataSplit = data[1].split("\t")
         if (dataSplit.size != 4) {
             throw ParsingTransferException("Transfer checker error - no proper split, size != 4. size = ${dataSplit.size}")
         }
         val pair = currencyAmountChecker.parse(dataSplit[2], dataSplit[3])
         return Transfer(
             null,
-            timestamp,
+            timestamp!!,
             ibanParser.parse(dataSplit[0]),
             nifParser.parse(dataSplit[1]),
             pair.first,
             pair.second
         )
-    }
-
-    override fun update(fileName: String) {
-        timestamp = customDateTimeFormatter.format(fileName)
     }
 }
 

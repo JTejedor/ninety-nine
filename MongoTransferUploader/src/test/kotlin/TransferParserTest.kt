@@ -162,20 +162,11 @@ class CurrencyAmountParserGeneratorTest(private val parser: CurrencyAmountParser
 
 
 
-@TestConfiguration
-@Profile("test")
-class ChangedFileGlobalStatisticsObservableCreator{
-    @Bean
-    fun getChangedFileGlobalStatisticsObservable():ChangedFileGlobalStatisticsObservable{
-        return mockkClass(ChangedFileGlobalStatisticsObservable::class,"", true)
-    }
-}
-
 @SpringBootTest()
 @ActiveProfiles("test")
 @ContextConfiguration(
     initializers = [ConfigFileApplicationContextInitializer::class],
-    classes = [ChangedFileGlobalStatisticsObservableCreator::class, TransferParser::class, CurrencyAmountParser::class, IbanParser::class, NIFParser::class, CustomDateTimeFormatter::class, ChangedFileGlobalStatisticsObservable::class]
+    classes = [TransferParser::class, CurrencyAmountParser::class, IbanParser::class, NIFParser::class, CustomDateTimeFormatter::class]
 )
 class TransferParserGeneratorTest(private val parser: TransferParser) : FunSpec() {
 
@@ -184,16 +175,22 @@ class TransferParserGeneratorTest(private val parser: TransferParser) : FunSpec(
     }
 
     init {
-        parser.update("")
+        test("Test throw exception because is a bad date") {
+            val testLine = "\t95117.36\tCHF"
+            shouldThrow<ParsingTransferException> {
+                parser.parse("", testLine)
+            }
+        }
+
         test("Test throw exception because is a bad transfer") {
             val testLine = "\t95117.36\tCHF"
             shouldThrow<ParsingTransferException> {
-                parser.parse(testLine)
+                parser.parse("20200821T123045Z", testLine)
             }
         }
         test("Test well processed transfer").config(invocations = 100) {
             val testLine = "GT35US0YDWQT3S8DWCP7E4XFNF0H\t36311270C\tDKK\t35689.7"
-            parser.parse(testLine)
+            parser.parse("20200821T123045Z", testLine)
         }
     }
 }
