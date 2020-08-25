@@ -16,6 +16,12 @@ repositories {
     mavenCentral()
 }
 
+docker {
+    name = "transfer-backend:$version"
+    this.tag("DockerHub","jtejedor/ninety-nine:$version-transfer-backend")
+    this.files(tasks.bootJar.get().outputs)
+}
+
 dependencies {
     annotationProcessor(
         group = "org.springframework.boot",
@@ -46,9 +52,9 @@ tasks.withType<KotlinCompile>() {
 }
 
 tasks.named<BootJar>("bootJar") {
-    this.archiveFileName.set("MongoTransferUploader.jar")
-    this.archiveBaseName.set("mongo-transfer-uploader")
-    this.archiveVersion.set("$version")
+    this.archiveFileName.set("TransferBackend.jar")
+    this.archiveBaseName.set("transfer-backend")
+    this.archiveVersion.set(project.version.toString())
 }
 
 tasks.withType<Test> {
