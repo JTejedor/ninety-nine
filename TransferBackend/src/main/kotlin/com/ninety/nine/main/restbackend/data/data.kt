@@ -90,3 +90,7 @@ data class Group(
     @Id
     val id: String
 )
+
+data class CurrencyCountResult(
+    val currencies: Int
+)

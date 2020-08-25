@@ -4,6 +4,7 @@ import com.ninety.nine.main.restbackend.data.MonthTransferGroupMaxAmount
 import com.ninety.nine.main.restbackend.data.MonthTransferGroupMaxCount
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 import java.util.*
 
@@ -18,7 +19,7 @@ class MonthEndpointController(
     fun monthWithMaxCount(
         @RequestParam("start") startDate: LocalDateTime,
         @RequestParam("end", required = false) endDate: LocalDateTime?
-    ): Flux<MonthTransferGroupMaxCount> {
+    ): Mono<MonthTransferGroupMaxCount> {
         return transferMonthCounterService.monthWithMaxCount(startDate, endDate)
     }
 
@@ -27,7 +28,7 @@ class MonthEndpointController(
     fun monthWithMaxAmount(
         @RequestParam("start") startDate: LocalDateTime,
         @RequestParam("end", required = false) endDate: LocalDateTime?
-    ): Flux<MonthTransferGroupMaxAmount> {
+    ): Mono<MonthTransferGroupMaxAmount> {
         return transferMonthCounterService.monthWithMaxAmount(startDate, endDate)
     }
 }

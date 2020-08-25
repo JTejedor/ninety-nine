@@ -4,6 +4,7 @@ import com.ninety.nine.main.restbackend.data.*
 import com.ninety.nine.main.restbackend.transfer.TransferCounter
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 
 @Service
@@ -21,14 +22,14 @@ class TransferMonthCounterService(
     fun monthWithMaxAmount(
         startDate: LocalDateTime,
         endDate: LocalDateTime?
-    ): Flux<MonthTransferGroupMaxAmount> {
-        return count(maxAmountCounter, startDate, endDate)
+    ): Mono<MonthTransferGroupMaxAmount> {
+        return count(maxAmountCounter, startDate, endDate).elementAt(0)
     }
 
     fun monthWithMaxCount(
         startDate: LocalDateTime,
         endDate: LocalDateTime?
-    ): Flux<MonthTransferGroupMaxCount> {
-        return count(maxCountCounter, startDate, endDate)
+    ): Mono<MonthTransferGroupMaxCount> {
+        return count(maxCountCounter, startDate, endDate).elementAt(0)
     }
 }
