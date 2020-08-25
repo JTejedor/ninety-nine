@@ -52,7 +52,7 @@ data class MonthTransferGroupCount(
 data class MonthTransferGroupMaxAmount(
     @Id
     val id: MonthAggregationKey,
-    val maxAmount: Int
+    val maxAmount: Double
 )
 
 data class MonthTransferGroupMaxCount(

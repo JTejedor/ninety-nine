@@ -7,18 +7,17 @@ import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 
 @RestController
-@RequestMapping("/iban")
-class TransferCounterController(
+class IbanEndpointController(
     private val ibanService: IbanService
 ) {
 
-    @GetMapping("/")
+    @GetMapping("/iban")
     @ResponseBody
     fun get(): Flux<Group> {
         return ibanService.get()
     }
 
-    @GetMapping("/transfers/{iban}")
+    @GetMapping("iban/transfers/{iban}")
     @ResponseBody
     fun getLastTransfersByIban(
         @PathVariable iban: Iban,

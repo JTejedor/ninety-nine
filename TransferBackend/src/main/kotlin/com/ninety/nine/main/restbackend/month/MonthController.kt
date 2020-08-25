@@ -9,7 +9,7 @@ import java.util.*
 
 @RestController
 @RequestMapping("/month")
-class TransferCounterController(
+class MonthEndpointController(
     private val transferMonthCounterService: TransferMonthCounterService
 ) {
 
@@ -17,17 +17,17 @@ class TransferCounterController(
     @ResponseBody
     fun monthWithMaxCount(
         @RequestParam("start") startDate: LocalDateTime,
-        @RequestParam("end") endDate: Optional<LocalDateTime>
+        @RequestParam("end", required = false) endDate: LocalDateTime?
     ): Flux<MonthTransferGroupMaxCount> {
-        return transferMonthCounterService.monthWithMaxCount(startDate, endDate.get())
+        return transferMonthCounterService.monthWithMaxCount(startDate, endDate)
     }
 
     @GetMapping("/transfer-amount-hit")
     @ResponseBody
     fun monthWithMaxAmount(
         @RequestParam("start") startDate: LocalDateTime,
-        @RequestParam("end") endDate: Optional<LocalDateTime>
+        @RequestParam("end", required = false) endDate: LocalDateTime?
     ): Flux<MonthTransferGroupMaxAmount> {
-        return transferMonthCounterService.monthWithMaxAmount(startDate, endDate.get())
+        return transferMonthCounterService.monthWithMaxAmount(startDate, endDate)
     }
 }

@@ -4,11 +4,13 @@ import com.ninety.nine.main.restbackend.data.DayTransferGroupCount
 import com.ninety.nine.main.restbackend.data.MonthTransferGroupCount
 import com.ninety.nine.main.restbackend.data.YearTransferGroupCount
 import org.bson.Document
+import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.aggregation.Aggregation
-import org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation
+import org.springframework.data.mongodb.core.aggregation.Aggregation.*
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation
 import org.springframework.data.mongodb.core.aggregation.MatchOperation
+import org.springframework.data.mongodb.core.aggregation.SortOperation
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
@@ -43,10 +45,12 @@ inline fun <reified T : Any> createAggregation(
     criteria: Criteria,
     aggregationOperation: AggregationOperation
 ): Flux<T> {
-    val matchStage: MatchOperation = Aggregation.match(criteria)
+    val matchStage: MatchOperation = match(criteria)
+    val sortStage: SortOperation = sort(Sort.Direction.DESC, "_id")
     val aggregation = newAggregation(
         matchStage,
-        aggregationOperation
+        aggregationOperation,
+        sortStage
     )
     return reactiveMongoTemplate.aggregate(aggregation, "transfers", T::class.java)
 }
@@ -175,8 +179,7 @@ class YearAggregationCreator : AggregationComponentCreator {
 
     override fun createIdentificationMap(): Map<String, Document> {
         return mapOf(
-            "year" to Document("\$year", "\$timestamp"),
-            "month" to Document("\$month", "\$timestamp")
+            "year" to Document("\$year", "\$timestamp")
         )
     }
 }

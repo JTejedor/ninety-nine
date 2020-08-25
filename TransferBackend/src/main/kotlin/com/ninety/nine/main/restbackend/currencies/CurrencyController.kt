@@ -6,16 +6,15 @@ import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 
 @RestController
-@RequestMapping("/currencies")
-class CurrencyController(private val currencyService: CurrencyService) {
+class CurrencyEndpointController(private val currencyService: CurrencyService) {
 
-    @GetMapping("/")
+    @GetMapping("/currencies")
     @ResponseBody
     fun get(): Flux<Group> {
         return currencyService.getReceivedDifferentCurrencies()
     }
 
-    @GetMapping("/count")
+    @GetMapping("/currencies/count")
     @ResponseBody
     fun count(): Flux<GroupCount> {
         return currencyService.getReceivedDifferentCurrenciesCount()

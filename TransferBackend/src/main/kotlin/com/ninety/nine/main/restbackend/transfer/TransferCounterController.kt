@@ -12,7 +12,6 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
-import java.util.*
 
 @Component
 class StringToLongTimestamp : Converter<String, LocalDateTime> {
@@ -40,26 +39,26 @@ class TransferCounterController(
     @ResponseBody
     fun yearCount(
         @RequestParam("start") startDate: LocalDateTime,
-        @RequestParam("end") endDate: Optional<LocalDateTime>
+        @RequestParam("end", required = false) endDate: LocalDateTime?
     ): Flux<YearTransferGroupCount> {
-        return transferCounterService.yearTransferCount(startDate, endDate.get())
+        return transferCounterService.yearTransferCount(startDate, endDate)
     }
 
     @GetMapping("/month")
     @ResponseBody
     fun monthCount(
         @RequestParam("start") startDate: LocalDateTime,
-        @RequestParam("end") endDate: Optional<LocalDateTime>
+        @RequestParam("end", required = false) endDate: LocalDateTime?
     ): Flux<MonthTransferGroupCount> {
-        return transferCounterService.monthTransferCount(startDate, endDate.get())
+        return transferCounterService.monthTransferCount(startDate, endDate)
     }
 
     @GetMapping("/day")
     @ResponseBody
     fun dayCount(
         @RequestParam("start") startDate: LocalDateTime,
-        @RequestParam("end") endDate: Optional<LocalDateTime>
+        @RequestParam("end", required = false) endDate: LocalDateTime?
     ): Flux<DayTransferGroupCount> {
-        return transferCounterService.dayTransferCount(startDate, endDate.get())
+        return transferCounterService.dayTransferCount(startDate, endDate)
     }
 }
