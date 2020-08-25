@@ -23,13 +23,13 @@ class TransferMonthCounterService(
         startDate: LocalDateTime,
         endDate: LocalDateTime?
     ): Mono<MonthTransferGroupMaxAmount> {
-        return count(maxAmountCounter, startDate, endDate).single()
+        return count(maxAmountCounter, startDate, endDate).next()
     }
 
     fun monthWithMaxCount(
         startDate: LocalDateTime,
         endDate: LocalDateTime?
     ): Mono<MonthTransferGroupMaxCount> {
-        return count(maxCountCounter, startDate, endDate).single()
+        return count(maxCountCounter, startDate, endDate).next()
     }
 }
