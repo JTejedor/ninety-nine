@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-
+import { CountData, CountView, DayId } from "src/app/data"
 
 @Injectable({
   providedIn: 'root'
@@ -8,15 +8,15 @@ export class DataToViewConvertService {
 
   constructor() { }
 
-  convertArray<T>( countDataArray: CountData<T>[]): CountView[]{
+  convertArray<T>( countDataArray: CountData<DayId>[]): CountView[]{
     return countDataArray.map(
-      countData => this.convert<T>(countData)
+      countData => this.convert(countData)
     )
   }
 
-  convert<T>( countData: CountData<T>): CountView{
+  convert( countData: CountData<DayId>): CountView{
     return {
-      name: countData.id.toString(),
+      name: `${countData.id.year}-${countData.id.month}-${countData.id.day}`,
       value: countData.count
     }
   }

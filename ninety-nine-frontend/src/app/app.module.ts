@@ -14,6 +14,9 @@ import { TransferPerYearService } from './services/transfer/transfer-per-year.se
 import { DataToViewConvertService } from './services/data-to-view-convert.service';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { DayTransferViewerService } from './services/transfer/day/day-transfer-viewer.service';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import {MatExpansionModule} from '@angular/material/expansion';
+import {MatGridListModule} from '@angular/material/grid-list';
 
 @NgModule({
   declarations: [
@@ -28,6 +31,9 @@ import { DayTransferViewerService } from './services/transfer/day/day-transfer-v
     NoopAnimationsModule,
     HttpClientModule,
     NgxChartsModule,
+    MatButtonToggleModule,
+    MatExpansionModule,
+    MatGridListModule
   ],
   providers: [
     TransferPerDayService,

@@ -1,14 +1,21 @@
-<ngx-charts-bar-vertical
-  [view]="view"
-  [scheme]="colorScheme"
-  [results]="data"
-  [gradient]="gradient"
-  [xAxis]="showXAxis"
-  [yAxis]="showYAxis"
-  [legend]="showLegend"
-  [showXAxisLabel]="showXAxisLabel"
-  [showYAxisLabel]="showYAxisLabel"
-  [xAxisLabel]="xAxisLabel"
-  [yAxisLabel]="yAxisLabel"
-  (select)="onSelect($event)">
-</ngx-charts-bar-vertical>
+<mat-accordion>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Transfer per day
+      </mat-panel-title>
+      <mat-panel-description>
+        View transfer received per day
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <mat-button-toggle-group name="dayPeriod" (change)="periodChange($event)">
+      <mat-button-toggle [value]="lastMonth" checked>Last Month</mat-button-toggle>
+      <mat-button-toggle [value]="lastThreeMonth">Last Three Months</mat-button-toggle>
+      <mat-button-toggle [value]="lastSixMonth">Last Six Months</mat-button-toggle>
+    </mat-button-toggle-group>
+    <ngx-charts-bar-vertical [view]="view" [scheme]="colorScheme" [results]="data" [gradient]="gradient"
+      [xAxis]="showXAxis" [yAxis]="showYAxis" [showXAxisLabel]="showXAxisLabel" [showYAxisLabel]="showYAxisLabel"
+      [xAxisLabel]="xAxisLabel" [yAxisLabel]="yAxisLabel" (select)="onSelect($event)">
+    </ngx-charts-bar-vertical>
+  </mat-expansion-panel>
+</mat-accordion>

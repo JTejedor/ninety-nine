@@ -7,36 +7,28 @@
 //  "count": 14699
 //}
 
-class DayId {
+
+export interface DayId {
   year: number;
   month: number;
   day: number;
-  public toString = (): string => {
-    return `${this.year}-${this.month}-${this.day}`;
-  }
 }
 
-class MonthId {
+export interface MonthId {
   year: number;
   month: number;
-  public toString = (): string => {
-    return `${this.year}-${this.month}`;
-  }
 }
 
-class YearId {
+export interface YearId {
   year: number;
-  public toString = (): string => {
-    return `${this.year}`;
-  }
 }
 
-interface CountData<T> {
-  id: T,
-  count: number
+export interface CountData<T> {
+  id: T;
+  count: number;
 }
 
-interface CountView {
+export interface CountView {
   name: string,
   value: number,
 }
