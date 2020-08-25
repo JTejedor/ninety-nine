@@ -34,7 +34,7 @@ class MonthMaxAmountAggregationCreator : MonthAggregationCreator(), SortOperatio
     override fun createGroupDocument(): Document {
         val groupDocument = mapOf(
             "_id" to createIdentificationMap(),
-            "maxAmount" to Document("\$sum", "\$amount")
+            "maxAmount" to Document("\$sum", "\$eurConversion")
         )
         return Document(
             "\$group",

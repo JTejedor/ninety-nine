@@ -12,15 +12,12 @@ data class Transfer(
     @Id
     var id: ObjectId?,
     var timestamp: LocalDateTime,
-    var iban: Iban,
+    var iban: String,
     var nif: String,
-    var currency: Currency,
-    var amount: Double
-) {
-    override fun toString(): String {
-        return "Transfer(id=$id, timestamp=$timestamp, iban=$iban, nif='$nif', currency=$currency, amount=$amount)"
-    }
-}
+    var currency: String,
+    var amount: Double,
+    var eurConversion: Double
+)
 
 @Document(collection = "globalstatistics")
 data class GlobalStatistics(
