@@ -13,7 +13,7 @@ transfer:
   probability-generation: 0.9
   probability-change-amount: 0.5
 file:
-  transfer-amount-lines: 100000
+  transfer-amount-lines: 500
 ftp-server:
   hostname: localhost
   user: ninetynine
