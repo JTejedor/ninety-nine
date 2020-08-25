@@ -52,7 +52,14 @@ services:
       #Each person has one nif and four iban (but due to a random process, the ibans may not all be fully used)
       TRANSFER_PEOPLE: 200
       #Used currencies to create random amounts
-      #TRANSFER_CURRENCIES: USD,EUR,GBP,CHF,RUB,DKK,SEK
+      #TRANSFER_CURRENCIES:
+      # - USD
+      # - EUR
+      # - GBP
+      # - CHF
+      # - RUB
+      # - DKK
+      # - SEK
       #Maximum amount related to transfer
       TRANSFER_MAXAMOUNT: 1000
       #Probability that a part of transfer is malformed (1 - TRANSFER_PROBABILITYWRONG)

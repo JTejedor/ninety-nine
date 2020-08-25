@@ -2,6 +2,22 @@ package com.ninety.nine.main.restbackend
 
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.context.annotation.Configuration
+import org.springframework.web.reactive.config.CorsRegistry
+import org.springframework.web.reactive.config.EnableWebFlux
+import org.springframework.web.reactive.config.WebFluxConfigurer
+
+
+@Configuration
+class WebConfig: WebFluxConfigurer
+{
+    override fun addCorsMappings(registry: CorsRegistry)
+    {
+        registry.addMapping("/**")
+            .allowedOrigins("*")
+            .allowedMethods("GET")
+    }
+}
 
 @SpringBootApplication
 class Application
