@@ -33,7 +33,7 @@ services:
       - ninety_nine_net
 
   transferuploader:
-    image: jtejedor/ninety-nine:1.0.2-transferuploader
+    image: jtejedor/ninety-nine:1.0.4-transferuploader
     container_name: tansfer-uploader
     depends_on:
       - ftpd_server
@@ -47,7 +47,7 @@ services:
       FTPSERVER_PASSWORD: ninetynine-rules
       #Uncomment the line below for amount over 10 millions lines to increase heap memory and avoid OutOfMemory Exception
       #JAVA_OPTS: "-Xms4g -Xmx4g"
-      FILE_TRANSFERAMOUNTLINES: 100000
+      FILE_TRANSFERAMOUNTLINES: 500
       #How many people are created with its iban and its nif
       #Each person has one nif and four iban (but due to a random process, the ibans may not all be fully used)
       TRANSFER_PEOPLE: 200
