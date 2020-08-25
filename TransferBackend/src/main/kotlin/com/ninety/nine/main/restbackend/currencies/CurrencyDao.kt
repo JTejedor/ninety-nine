@@ -33,7 +33,8 @@ class CurrencyDaoImpl(private val reactiveMongoTemplate: ReactiveMongoTemplate) 
         val groupAggregation = group("currency")
         val countAggregation = group().count().`as`("currencies")
         val aggregation = newAggregation(groupAggregation, countAggregation)
-        return reactiveMongoTemplate.aggregate(aggregation, "transfers", CurrencyCountResult::class.java).elementAt(0)
+        val flux = reactiveMongoTemplate.aggregate(aggregation, "transfers", CurrencyCountResult::class.java)
+        return flux.single()
     }
 
 }
