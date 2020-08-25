@@ -1,7 +1,10 @@
 package com.ninety.nine.main.mongouploader
+
+import org.apache.commons.net.ftp.FTPFile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.stereotype.Component
 
@@ -16,12 +19,12 @@ final class TransferSaver(private val mongoTemplate: MongoTemplate) : Saver<Tran
         @JvmStatic
         private val logger: Logger = LoggerFactory.getLogger(TransferSaver::class.java)
     }
+
     override fun save(fileExtractionResult: FileExtractionResult) {
         if (fileExtractionResult.transfers.size == 0)
             return
-        logger.info("Saving transfer. count ${fileExtractionResult.transfers.size}")
         val savedElements: Collection<Transfer> = mongoTemplate.insertAll(fileExtractionResult.transfers)
-        logger.info("Saved transfer. count ${savedElements.size}")
+        logger.info("Saved transfers ${savedElements.size} of ${fileExtractionResult.transfers.size}")
     }
 }
 
@@ -40,53 +43,25 @@ final class FileStatisticsSaver(private val mongoTemplate: MongoTemplate) : Save
 }
 
 
-interface ChangedFileGlobalStatisticsSubscriber {
-    fun update(fileName: String)
-}
-
-interface ChangedFileGlobalStatisticsObservable{
-    fun provideLastProcessedFile(): String
-    fun subscribe(subscriber: ChangedFileGlobalStatisticsSubscriber)
-    fun unsubscribe(subscriber: ChangedFileGlobalStatisticsSubscriber)
-}
-
 interface GlobalStatisticsProvider {
     fun update(fileExtractionResult: FileExtractionResult)
 }
 
 @Component
-final class GlobalStatisticsManager(private val mongoTemplate: MongoTemplate) : GlobalStatisticsProvider, ChangedFileGlobalStatisticsObservable {
+final class GlobalStatisticsManager(private val mongoTemplate: MongoTemplate) : GlobalStatisticsProvider {
     private val statistics: GlobalStatistics
-    private val subscribers = ArrayList<ChangedFileGlobalStatisticsSubscriber>()
 
     init {
         val query = Query()
         statistics = mongoTemplate.findOne(query, GlobalStatistics::class.java) ?: GlobalStatistics.emptyStatistics()
     }
 
-    override fun provideLastProcessedFile(): String {
-        return statistics.lastProcessedFileName
-    }
-
-    override fun subscribe(subscriber: ChangedFileGlobalStatisticsSubscriber) {
-        subscribers.add(subscriber)
-    }
-
-    override fun unsubscribe(subscriber: ChangedFileGlobalStatisticsSubscriber) {
-        subscribers.remove(subscriber)
-    }
 
     override fun update(fileExtractionResult: FileExtractionResult) {
         updateStatistics(fileExtractionResult)
         mongoTemplate.save(statistics)
-        notifyChangedFile()
     }
 
-    private fun notifyChangedFile() {
-        for (subscriber in subscribers) {
-            subscriber.update(statistics.lastProcessedFileName)
-        }
-    }
 
     private fun updateStatistics(fileExtractionResult: FileExtractionResult) {
         statistics.lastProcessedFileName = fileExtractionResult.filename
@@ -101,7 +76,7 @@ final class GlobalStatisticsManager(private val mongoTemplate: MongoTemplate) : 
     }
 }
 
-interface ResultDispatcher{
+interface ResultDispatcher {
     fun dispatch(fileExtractionResult: FileExtractionResult)
 }
 
@@ -110,22 +85,48 @@ final class FileExtractorResultDispatcher(
     private val transferSaver: Saver<Transfer>,
     private val fileSaver: Saver<FileStatistics>,
     private val globalStatisticsProvider: GlobalStatisticsProvider
-): ResultDispatcher {
+) : ResultDispatcher {
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         @JvmStatic
         private val logger: Logger = LoggerFactory.getLogger(FileExtractorResultDispatcher::class.java)
     }
-    override fun dispatch(fileExtractionResult: FileExtractionResult){
-      try{
-          logger.error("Saving results")
-          transferSaver.save(fileExtractionResult)
-          fileSaver.save(fileExtractionResult)
-          globalStatisticsProvider.update(fileExtractionResult)
-      }
-      catch (ex:Exception){
-          logger.error(convertStactTrace(ex))
-      }
+
+    override fun dispatch(fileExtractionResult: FileExtractionResult) {
+        try {
+            logger.error("Saving results")
+            transferSaver.save(fileExtractionResult)
+            fileSaver.save(fileExtractionResult)
+            globalStatisticsProvider.update(fileExtractionResult)
+        } catch (ex: Exception) {
+            logger.error(convertStactTrace(ex))
+        }
     }
+}
+
+
+interface FileFilter {
+    fun filter(files: Array<FTPFile>): List<FTPFile>
+}
+
+@Component
+class FileFilterImplementation(private val mongoTemplate: MongoTemplate) : FileFilter {
+    override fun filter(files: Array<FTPFile>): List<FTPFile> {
+        val query = Query()
+        val queryList = ArrayList<String>()
+        val queryMap = HashMap<String, FTPFile>()
+        files.forEach {
+            queryList.add(it.name)
+            queryMap[it.name] = it;
+        }
+
+        query.addCriteria(Criteria.where("fileName").`in`(queryList))
+        val list = mongoTemplate.find(query, FileStatistics::class.java)
+        for (fileStatistics in list) {
+            queryMap.remove(fileStatistics.fileName)
+        }
+        return queryMap.values.toList()
+    }
+
 }
 
