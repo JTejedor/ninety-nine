@@ -54,7 +54,7 @@ services:
       #Used currencies to create random amounts
       #TRANSFER_CURRENCIES: USD,EUR,GBP,CHF,RUB,DKK,SEK
       #Maximum amount related to transfer
-      #TRANSFER_MAXAMOUNT: 100000
+      TRANSFER_MAXAMOUNT: 1000
       #Probability that a part of transfer is malformed (1 - TRANSFER_PROBABILITYWRONG)
       #TRANSFER_PROBABILITYWRONG: 0.85
       #Global probability to create a full well fomatted transfer
@@ -77,6 +77,21 @@ services:
       FTPSERVER_USER: ninetynine
       FTPSERVER_PASSWORD: ninetynine-rules
       SPRING_DATA_MONGODB_URI: mongodb://ninetynine:ninetyninerules@mongodb:27017/nntransfers?authSource=admin
+
+  backend:
+    image: jtejedor/ninety-nine:1.0.0-transfer-backend
+    container_name: transfer-backend
+    depends_on:
+      - mongodb
+    links:
+      - mongodb
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://ninetynine:ninetyninerules@mongodb:27017/nntransfers?authSource=admin
+    ports:
+      - "8080:8080"
+    networks:
+      - ninety_nine_net
+
 networks:
     ninety_nine_net:
       name: ninety_nine_net
