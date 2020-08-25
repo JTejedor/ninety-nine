@@ -16,7 +16,7 @@ java {
 }
 
 group = "com.ninety.nine"
-version = "1.0.1"
+version = "1.0.2"
 
 docker {
     name = "mongouploader:$version"
@@ -41,6 +41,7 @@ dependencies {
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-data-mongodb")
     implementation(group = "org.iban4j", name = "iban4j", version = "3.2.1")
     implementation(group = "commons-net", name = "commons-net", version = "3.6")
+    implementation(group = "org.javamoney", name = "moneta", version = "1.4.2")
     testImplementation(
         group = "org.springframework.boot",
         name = "spring-boot-starter-test"
@@ -53,6 +54,7 @@ dependencies {
     testImplementation(group = "io.kotest", name = "kotest-extensions-spring", version = "4.1.3")
     testImplementation(group ="io.mockk", name = "mockk", version="1.10.0")
 }
+
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "11"
     kotlinOptions.allWarningsAsErrors = true
@@ -60,8 +62,8 @@ tasks.withType<KotlinCompile> {
 
 tasks.named<BootJar>("bootJar") {
     this.archiveFileName.set("MongoTransferUploader.jar")
-    this.archiveBaseName.set("mongo-transfer-uploader")
-    this.archiveVersion.set("1.0.0")
+    this.archiveBaseName.set(rootProject.name)
+    this.archiveVersion.set(project.version.toString())
 }
 
 tasks.withType<Test> {

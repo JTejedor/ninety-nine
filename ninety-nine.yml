@@ -62,7 +62,7 @@ services:
       #Probability that the amount field is in third position or last one
       #TRANSFER_PROBABILITYCHANGEAMOUNT: 0.5
   mongouploader:
-    image: jtejedor/ninety-nine:1.0.1-mongouploader
+    image: jtejedor/ninety-nine:1.0.2-mongouploader
     container_name: mongo-uploader
     depends_on:
       - ftpd_server

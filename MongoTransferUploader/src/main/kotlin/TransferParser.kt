@@ -1,10 +1,12 @@
 package com.ninety.nine.main.mongouploader
 
 import org.iban4j.Iban
+import org.javamoney.moneta.FastMoney
 import org.springframework.stereotype.Component
-import java.lang.NumberFormatException
+import java.text.DecimalFormat
 import java.time.LocalDateTime
-import java.util.Currency
+import java.util.*
+import javax.money.convert.MonetaryConversions
 
 
 interface Parser<T> {
@@ -18,10 +20,13 @@ class ParsingTransferException(error: String) : Exception(error)
 final class TransferParser(
     private val ibanParser: Parser<Iban>,
     private val nifParser: Parser<String>,
-    private val currencyAmountChecker: CurrencyAmountParser,
+    private val currencyAmountParser: CurrencyAmountParser,
     private val customDateTimeFormatter: CustomDateTimeFormatter
 ) : Parser<Transfer> {
-
+    companion object{
+        private val conversionEUR = MonetaryConversions.getConversion("EUR")
+        private val df = DecimalFormat("0.00")
+    }
     private var timestamp: LocalDateTime? = null
 
     override fun parse(vararg data: String): Transfer {
@@ -36,15 +41,22 @@ final class TransferParser(
         if (dataSplit.size != 4) {
             throw ParsingTransferException("Transfer checker error - no proper split, size != 4. size = ${dataSplit.size}")
         }
-        val pair = currencyAmountChecker.parse(dataSplit[2], dataSplit[3])
+        val pair = currencyAmountParser.parse(dataSplit[2], dataSplit[3])
         return Transfer(
             null,
             timestamp!!,
-            ibanParser.parse(dataSplit[0]),
+            ibanParser.parse(dataSplit[0]).toString(),
             nifParser.parse(dataSplit[1]),
-            pair.first,
-            pair.second
+            pair.first.toString(),
+            pair.second,
+            getEurConversion(pair.second, pair.first.currencyCode)
         )
+    }
+
+    private fun getEurConversion(amount: Double, currency: String): Double{
+        val currentMoney: FastMoney = FastMoney.of(amount, currency)
+        val eurConversion: FastMoney = currentMoney.with(conversionEUR)
+        return df.format(eurConversion.number.doubleValueExact()).toDouble()
     }
 }
 
