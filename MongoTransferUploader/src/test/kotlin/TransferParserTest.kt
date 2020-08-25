@@ -6,20 +6,20 @@ import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.extensions.Extension
 import io.kotest.core.listeners.TestListener
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.doubles.shouldBeExactly
 import io.kotest.spring.SpringAutowireConstructorExtension
 import io.kotest.spring.SpringListener
-import io.mockk.mockkClass
 import org.iban4j.Iban
+import org.javamoney.moneta.FastMoney
 import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Profile
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.support.AnnotationConfigContextLoader
+import java.text.DecimalFormat
 import java.util.concurrent.ThreadLocalRandom
+import javax.money.convert.MonetaryConversions
+
 
 class ProjectConfig : AbstractProjectConfig() {
     override fun extensions(): List<Extension> = listOf(SpringAutowireConstructorExtension)
@@ -162,38 +162,45 @@ class CurrencyAmountParserGeneratorTest(private val parser: CurrencyAmountParser
 
 
 
-@TestConfiguration
-@Profile("test")
-class ChangedFileGlobalStatisticsObservableCreator{
-    @Bean
-    fun getChangedFileGlobalStatisticsObservable():ChangedFileGlobalStatisticsObservable{
-        return mockkClass(ChangedFileGlobalStatisticsObservable::class,"", true)
-    }
-}
-
 @SpringBootTest()
 @ActiveProfiles("test")
 @ContextConfiguration(
     initializers = [ConfigFileApplicationContextInitializer::class],
-    classes = [ChangedFileGlobalStatisticsObservableCreator::class, TransferParser::class, CurrencyAmountParser::class, IbanParser::class, NIFParser::class, CustomDateTimeFormatter::class, ChangedFileGlobalStatisticsObservable::class]
+    classes = [TransferParser::class, CurrencyAmountParser::class, IbanParser::class, NIFParser::class, CustomDateTimeFormatter::class]
 )
 class TransferParserGeneratorTest(private val parser: TransferParser) : FunSpec() {
-
+    companion object{
+        private val conversionEUR = MonetaryConversions.getConversion("EUR")
+        private val df = DecimalFormat("0.00")
+    }
     override fun listeners(): List<TestListener> {
         return listOf(SpringListener)
     }
 
+    private fun getEurConversion(amount: Double, currency: String): Double{
+        val currentMoney: FastMoney = FastMoney.of(amount, currency)
+        val eurConversion: FastMoney = currentMoney.with(conversionEUR)
+        return df.format(eurConversion.number.doubleValueExact()).toDouble()
+    }
+
     init {
-        parser.update("")
+        test("Test throw exception because is a bad date") {
+            val testLine = "\t95117.36\tCHF"
+            shouldThrow<ParsingTransferException> {
+                parser.parse("", testLine)
+            }
+        }
+
         test("Test throw exception because is a bad transfer") {
             val testLine = "\t95117.36\tCHF"
             shouldThrow<ParsingTransferException> {
-                parser.parse(testLine)
+                parser.parse("20200821T123045Z", testLine)
             }
         }
         test("Test well processed transfer").config(invocations = 100) {
             val testLine = "GT35US0YDWQT3S8DWCP7E4XFNF0H\t36311270C\tDKK\t35689.7"
-            parser.parse(testLine)
+            val transfer = parser.parse("20200821T123045Z", testLine)
+            getEurConversion(transfer.amount, transfer.currency) shouldBeExactly transfer.eurConversion
         }
     }
 }

@@ -28,7 +28,7 @@ final class FileExtractorReader(private val transferParser: TransferParser) :
             var line = reader.readLine()
             while (line != null) {
                 try {
-                    val transfer = transferParser.parse(line)
+                    val transfer = transferParser.parse(fileName, line)
                     transfers.add(transfer)
                     ++successCount
                 } catch (ex: Exception) {

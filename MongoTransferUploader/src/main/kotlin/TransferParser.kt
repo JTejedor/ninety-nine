@@ -1,10 +1,12 @@
 package com.ninety.nine.main.mongouploader
 
 import org.iban4j.Iban
+import org.javamoney.moneta.FastMoney
 import org.springframework.stereotype.Component
-import java.lang.NumberFormatException
+import java.text.DecimalFormat
 import java.time.LocalDateTime
-import java.util.Currency
+import java.util.*
+import javax.money.convert.MonetaryConversions
 
 
 interface Parser<T> {
@@ -18,39 +20,43 @@ class ParsingTransferException(error: String) : Exception(error)
 final class TransferParser(
     private val ibanParser: Parser<Iban>,
     private val nifParser: Parser<String>,
-    private val currencyAmountChecker: CurrencyAmountParser,
-    private val customDateTimeFormatter: CustomDateTimeFormatter,
-    globalStatisticsObservable: ChangedFileGlobalStatisticsObservable
-) : Parser<Transfer>,ChangedFileGlobalStatisticsSubscriber {
-    init {
-        globalStatisticsObservable.subscribe(this)
+    private val currencyAmountParser: CurrencyAmountParser,
+    private val customDateTimeFormatter: CustomDateTimeFormatter
+) : Parser<Transfer> {
+    companion object{
+        private val conversionEUR = MonetaryConversions.getConversion("EUR")
+        private val df = DecimalFormat("0.00")
     }
-    private var timestamp: LocalDateTime = customDateTimeFormatter.format(globalStatisticsObservable.provideLastProcessedFile())
+    private var timestamp: LocalDateTime? = null
 
     override fun parse(vararg data: String): Transfer {
-        if (data.size != 1) {
+        if (data.size != 2) {
             throw ParsingTransferException("Transfer checker error - different from 1")
         }
-        if (data[0].isBlank()) {
+        if (data[0].isBlank() || data[1].isBlank()) {
             throw ParsingTransferException("Transfer checker error - data is blank")
         }
-        val dataSplit = data[0].split("\t")
+        timestamp = customDateTimeFormatter.format(data[0])
+        val dataSplit = data[1].split("\t")
         if (dataSplit.size != 4) {
             throw ParsingTransferException("Transfer checker error - no proper split, size != 4. size = ${dataSplit.size}")
         }
-        val pair = currencyAmountChecker.parse(dataSplit[2], dataSplit[3])
+        val pair = currencyAmountParser.parse(dataSplit[2], dataSplit[3])
         return Transfer(
             null,
-            timestamp,
-            ibanParser.parse(dataSplit[0]),
+            timestamp!!,
+            ibanParser.parse(dataSplit[0]).toString(),
             nifParser.parse(dataSplit[1]),
-            pair.first,
-            pair.second
+            pair.first.toString(),
+            pair.second,
+            getEurConversion(pair.second, pair.first.currencyCode)
         )
     }
 
-    override fun update(fileName: String) {
-        timestamp = customDateTimeFormatter.format(fileName)
+    private fun getEurConversion(amount: Double, currency: String): Double{
+        val currentMoney: FastMoney = FastMoney.of(amount, currency)
+        val eurConversion: FastMoney = currentMoney.with(conversionEUR)
+        return df.format(eurConversion.number.doubleValueExact()).toDouble()
     }
 }
 
