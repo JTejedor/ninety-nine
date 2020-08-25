@@ -16,10 +16,6 @@ repositories {
     mavenCentral()
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     annotationProcessor(
         group = "org.springframework.boot",
@@ -52,7 +48,7 @@ tasks.withType<KotlinCompile>() {
 tasks.named<BootJar>("bootJar") {
     this.archiveFileName.set("MongoTransferUploader.jar")
     this.archiveBaseName.set("mongo-transfer-uploader")
-    this.archiveVersion.set("1.0.0")
+    this.archiveVersion.set("$version")
 }
 
 tasks.withType<Test> {
