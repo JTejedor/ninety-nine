@@ -10,7 +10,7 @@ plugins {
     kotlin("plugin.spring") version "1.3.72"
 }
 group = "com.ninety.nine"
-version = "1.0.0"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
