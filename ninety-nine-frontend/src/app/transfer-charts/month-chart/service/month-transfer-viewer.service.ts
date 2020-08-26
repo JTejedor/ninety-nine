@@ -11,7 +11,6 @@ class MonthConverter implements Converter<MonthId>{
   }
 
   private convert(countData: CountData<MonthId>): CountView {
-    console.log(`${countData.id.year}-${countData.id.month}`)
     return {
       name: `${countData.id.year}-${countData.id.month}`,
       value: countData.count
