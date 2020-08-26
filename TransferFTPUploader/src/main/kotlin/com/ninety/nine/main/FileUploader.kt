@@ -1,6 +1,5 @@
 package com.ninety.nine.main
 
-import org.apache.commons.net.PrintCommandListener
 import org.apache.commons.net.ftp.FTPClient
 import org.apache.commons.net.ftp.FTPReply
 import org.slf4j.Logger
@@ -10,16 +9,16 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component
 import java.io.File
 import java.io.FileInputStream
-import java.io.PrintWriter
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters.firstDayOfMonth
+import java.time.temporal.TemporalAdjusters.lastDayOfMonth
 import java.util.concurrent.ThreadLocalRandom
 
 @Component
 @EnableConfigurationProperties
-@ConfigurationProperties(prefix="file")
+@ConfigurationProperties(prefix = "file")
 class FileConfiguration {
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
@@ -29,7 +28,7 @@ class FileConfiguration {
 
     var transferAmountLines: Long = 0
 
-    fun printConfiguration(){
+    fun printConfiguration() {
         logger.info("")
         logger.info("+++++++++++++++++++++++++++++++++++")
         logger.info("++++FILE UPLOADER CONFIGURATION++++")
@@ -40,18 +39,19 @@ class FileConfiguration {
 
 @Component
 @EnableConfigurationProperties
-@ConfigurationProperties(prefix="ftp-server")
+@ConfigurationProperties(prefix = "ftp-server")
 class FTPServerConfiguration {
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         @JvmStatic
         private val logger: Logger = LoggerFactory.getLogger(FTPServerConfiguration::class.java)
     }
+
     var hostname = "localhost"
     var user = "ninetynine"
     var password = "ninetynine-rules"
 
-    fun printConfiguration(){
+    fun printConfiguration() {
         logger.info("")
         logger.info("+++++++++++++++++++++++++++++++++++")
         logger.info("++++SERVER UPLOADER CONFIGURATION++++")
@@ -68,27 +68,15 @@ class FileGenerator(
     private val transferGenerator: TransferGenerator
 ) {
     companion object {
-        private val FTP_FILE_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'")
+
         @Suppress("JAVA_CLASS_ON_COMPANION")
         @JvmStatic
         private val logger: Logger = LoggerFactory.getLogger(FileGenerator::class.java)
     }
 
-    private fun makeFileName(): String {
-        val current = LocalDateTime.now()
-        val localDate: LocalDate = current.toLocalDate()
-        val fiveYearInPastSinceEpoch =localDate.minusYears(5).atStartOfDay().toEpochSecond(ZoneOffset.UTC)
-        val currentSinceEpoch = current.toEpochSecond(ZoneOffset.UTC)
-        val randomTime =
-            ThreadLocalRandom.current().nextLong(fiveYearInPastSinceEpoch, currentSinceEpoch)
-        val usedDate = LocalDateTime.ofEpochSecond(randomTime, 0, ZoneOffset.UTC);
-        return usedDate.format(FTP_FILE_DATE_FORMAT).plus(".csv")
-    }
-
-    fun create(): String {
+    fun create(name: String): String {
         val randomNumberOfLines =
             ThreadLocalRandom.current().nextLong(0, fileConfiguration.transferAmountLines)
-        val name = makeFileName()
         try {
             val file = File(name)
             file.bufferedWriter().use { out ->
@@ -99,8 +87,7 @@ class FileGenerator(
             }
             logger.info("CREATED FILE $name OF $randomNumberOfLines LINES")
             return file.absolutePath
-        }
-        catch (ex: Exception){
+        } catch (ex: Exception) {
             logger.error("ERROR CREATING FILE $name OF $randomNumberOfLines LINES")
             return ""
         }
@@ -114,6 +101,7 @@ class CustomFtpClient(private val ftpServerConfiguration: FTPServerConfiguration
         @JvmStatic
         private val logger: Logger = LoggerFactory.getLogger(CustomFtpClient::class.java)
     }
+
     private val ftpClient: FTPClient = FTPClient()
     private fun connect() {
         //ftpClient.addProtocolCommandListener(PrintCommandListener(PrintWriter(System.out)))
@@ -150,9 +138,46 @@ class CustomFtpClient(private val ftpServerConfiguration: FTPServerConfiguration
 
 @Component
 class FileUploader(private val fileGenerator: FileGenerator, private val ftpClient: CustomFtpClient) {
-    fun uploadFile() {
-        val path = fileGenerator.create()
-        if(!path.isBlank())
-            ftpClient.uploadFile(path)
+    companion object {
+        private val FTP_FILE_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'")
+        private const val MINUS_YEARS: Long = 5
+        private const val MAXIMUM_FILES_PER_MONTH = 30
+    }
+
+    fun upload() {
+        val now: LocalDateTime = LocalDateTime.now()
+        var currentFirstDayMonth: LocalDateTime = now.with(firstDayOfMonth())
+        val fiveYearInPastDate = currentFirstDayMonth.minusYears(MINUS_YEARS)
+        while (currentFirstDayMonth > fiveYearInPastDate) {
+            val endOfMonth = getEndOfMonth(currentFirstDayMonth)
+            generateMonth(currentFirstDayMonth, endOfMonth)
+            currentFirstDayMonth = currentFirstDayMonth.minusMonths(1)
+        }
+    }
+
+    private fun getEndOfMonth(startOfMonth: LocalDateTime): LocalDateTime {
+        val now = LocalDateTime.now()
+        val endDateTime: LocalDateTime = startOfMonth.with(lastDayOfMonth()).plusDays(1)
+        return if (endDateTime > now) now else endDateTime
+    }
+
+    private fun generateFileName(startOfMonth: LocalDateTime, endOfMonth: LocalDateTime): String {
+        val start = startOfMonth.toEpochSecond(ZoneOffset.UTC)
+        val end = endOfMonth.toEpochSecond(ZoneOffset.UTC)
+        val randomTime =
+            ThreadLocalRandom.current().nextLong(start, end)
+        val usedDate = LocalDateTime.ofEpochSecond(randomTime, 0, ZoneOffset.UTC);
+        return usedDate.format(FTP_FILE_DATE_FORMAT).plus(".csv")
+    }
+
+    private fun generateMonth(startOfMonth: LocalDateTime, endOfMonth: LocalDateTime) {
+        val numberOfFilesThisMonth =
+            ThreadLocalRandom.current().nextInt(1, MAXIMUM_FILES_PER_MONTH)
+        for (x in 0..numberOfFilesThisMonth) {
+            val fileName = generateFileName(startOfMonth, endOfMonth)
+            val path = fileGenerator.create(fileName)
+            if (!path.isBlank())
+                ftpClient.uploadFile(path)
+        }
     }
 }

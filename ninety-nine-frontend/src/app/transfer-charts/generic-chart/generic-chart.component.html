@@ -1,0 +1,30 @@
+<mat-accordion>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        {{chart.title}}
+      </mat-panel-title>
+      <mat-panel-description>
+        {{chart.description}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <mat-button-toggle-group name="dayPeriod" (change)="dataSizeChanged($event)">
+      <mat-button-toggle value="SMALL" checked>{{chart.dataSizeLabel[0]}}</mat-button-toggle>
+      <mat-button-toggle value="MEDIUM">{{chart.dataSizeLabel[1]}}</mat-button-toggle>
+      <mat-button-toggle value="LARGE">{{chart.dataSizeLabel[2]}}</mat-button-toggle>
+    </mat-button-toggle-group>
+    <ngx-charts-bar-vertical 
+      [view]="chart.view" 
+      [scheme]="chart.colorScheme" 
+      [results]="chart.data" 
+      [gradient]="chart.gradient"
+      [xAxis]="chart.showXAxis" 
+      [yAxis]="chart.showYAxis" 
+      [showXAxisLabel]="chart.showXAxisLabel" 
+      [showYAxisLabel]="chart.showYAxisLabel"
+      [xAxisLabel]="chart.xAxisLabel" 
+      [yAxisLabel]="chart.yAxisLabel"
+      (select)="onSelect($event)">
+    </ngx-charts-bar-vertical>
+  </mat-expansion-panel>
+</mat-accordion>

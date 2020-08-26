@@ -1,0 +1,35 @@
+
+<app-iban-selector (ibanEmitter)="onIbanChange($event)"></app-iban-selector>
+
+<mat-table [dataSource]="data" class="mat-elevation-z8">
+ 
+  <ng-container matColumnDef="IBAN">
+    <mat-header-cell *matHeaderCellDef> IBAN </mat-header-cell>
+    <mat-cell *matCellDef="let transfer"> {{transfer.iban | slice:0:8}} </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="NIF">
+    <mat-header-cell *matHeaderCellDef> NIF </mat-header-cell>
+    <mat-cell *matCellDef="let transfer"> {{transfer.nif}} </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="TIME">
+    <mat-header-cell *matHeaderCellDef> TIME </mat-header-cell>
+    <mat-cell *matCellDef="let transfer"> {{transfer.timestamp}} </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="AMOUNT">
+    <mat-header-cell *matHeaderCellDef> AMOUNT </mat-header-cell>
+    <mat-cell *matCellDef="let transfer"> {{transfer.amount}} </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="CURRENCY">
+    <mat-header-cell *matHeaderCellDef> CURRENCY </mat-header-cell>
+    <mat-cell *matCellDef="let transfer"> {{transfer.currency}} </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="EUR">
+    <mat-header-cell *matHeaderCellDef> EUR </mat-header-cell>
+    <mat-cell *matCellDef="let transfer"> {{transfer.eurConversion}} €</mat-cell>
+  </ng-container>
+
+  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+</mat-table>

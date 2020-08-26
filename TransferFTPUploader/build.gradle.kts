@@ -16,7 +16,7 @@ java {
 }
 
 group = "com.ninety.nine"
-version = "1.0.2"
+version = "1.0.4"
 
 docker {
     name = "transferuploader:$version"
@@ -38,7 +38,6 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
-    // Latest Kotest Version
     testImplementation ("io.kotest:kotest-runner-junit5-jvm:4.1.3")
     testImplementation ("io.kotest:kotest-assertions-core-jvm:4.1.3")
     testImplementation ("io.kotest:kotest-property-jvm:4.1.3")
@@ -52,7 +51,7 @@ tasks.withType<KotlinCompile>().configureEach {
 tasks.named<BootJar>("bootJar") {
     this.archiveFileName.set("TransferFTPUploader.jar")
     this.archiveBaseName.set("transfer-ftp-uploader")
-    this.archiveVersion.set("0.1.0")
+    this.archiveVersion.set(project.version.toString())
 }
 tasks.withType<Test> {
     useJUnitPlatform()

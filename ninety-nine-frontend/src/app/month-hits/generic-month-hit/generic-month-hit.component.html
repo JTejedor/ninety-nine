@@ -1,0 +1,12 @@
+<h3>{{hit.title}}</h3>
+<mat-button-toggle-group name="dayPeriod" (change)="timeChanged($event)">
+  <mat-button-toggle value="ONE_YEAR" checked>{{hit.timePeriodLabel[0]}}</mat-button-toggle>
+  <mat-button-toggle value="THREE_YEARS">{{hit.timePeriodLabel[1]}}</mat-button-toggle>
+  <mat-button-toggle value="ALL_TIMES">{{hit.timePeriodLabel[2]}}</mat-button-toggle>
+</mat-button-toggle-group>
+<div class="container">
+  <div class="div-cell div-start">{{hit.year}} </div>
+  <div class="div-cell div-start">{{hit.month}}</div>
+  <div class="div-cell div-start">{{hit.value}}</div>
+  <div class="div-cell div-start div-end">{{hit.unit}} </div>
+</div>
