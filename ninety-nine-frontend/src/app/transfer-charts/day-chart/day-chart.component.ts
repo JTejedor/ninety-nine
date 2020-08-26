@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { DayTransferViewerService } from 'src/app/services/transfer/day/day-transfer-viewer.service';
-import { Subscription } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { DayTransferViewerService } from './service/day-transfer-viewer.service';
 import { CountView } from 'src/app/data';
 import { first } from 'rxjs/operators';
+import { GenericChartData, DataSize } from '../generic-chart/generic-chart.component';
 
 @Component({
   selector: 'app-day-chart',
@@ -11,69 +11,59 @@ import { first } from 'rxjs/operators';
 })
 export class DayChartComponent implements OnInit {
 
-  lastMonth: "last-month" = "last-month";
-  lastThreeMonth: "last-three-month" = "last-three-month";
-  lastSixMonth: "last-six-month" = "last-six-month";
+  chartData: GenericChartData;
 
-  view: any[] = [700, 400];
-  data: CountView[];
-  dataOneMonth: CountView[] = [];
-  dataThreeMonth: CountView[] = [];
-  dataSixMonth: CountView[] = [];
-  // options
-  showXAxis = true;
-  showYAxis = true;
-  gradient = false;
-  showXAxisLabel = true;
-  xAxisLabel = 'Days';
-  showYAxisLabel = true;
-  yAxisLabel = 'Number of transfers';
-
-  colorScheme = {
-    domain: ['#4E18C5']
-  };
-
-  constructor(public dayTransferViewer: DayTransferViewerService) {
+  constructor(private dayTransferViewer: DayTransferViewerService) {
+    this.chartData = {
+      title: "Transfer per day",
+      description: "View transfer received per day",
+      dataSizeLabel: ["Last Month","Last three Months","Last Six Months"],
+      view: [1200,400],
+      data: [],
+      // options
+      showXAxis:true,
+      showYAxis:true,
+      gradient:false,
+      showXAxisLabel:true,
+      xAxisLabel:"Days",
+      showYAxisLabel:true,
+      yAxisLabel:"Transfers",
+      colorScheme: {
+        domain: ['#4E18C5']
+      }
+    }
   }
-  
 
   ngOnInit() {
-    this.changePeriod(this.lastMonth)
+    this.changePeriod(DataSize.SMALL)
   }
 
-  onSelect(event) {
-
-  }
-
-  changePeriod(period:string){
-    if(period ===this.lastMonth){
+  changePeriod(size: DataSize){
+    if(size === DataSize.SMALL){
       this.dayTransferViewer.getDayDataLastMonth().pipe(first()).subscribe(
         dataOneMonth => {
-          this.data = dataOneMonth
-          this.showXAxisLabel = true
+          this.chartData.data = dataOneMonth
         }
       )
     }
-    else if(period===this.lastThreeMonth){
+    else if(size === DataSize.MEDIUM){
       this.dayTransferViewer.getDayDataLastThreeMonth().pipe(first()).subscribe(
         dataThreeMonth => {
-          this.data = dataThreeMonth
-          this.showXAxisLabel = false
+          this.chartData.data = dataThreeMonth
         }
       )
     }
-    else if(period==this.lastSixMonth){
+    else if(size === DataSize.LARGE){
       this.dayTransferViewer.getDayDataLastSixMonth().pipe(first()).subscribe(
         dataSixMonth => {
-          this.data = dataSixMonth
-          this.showXAxisLabel = false
+          this.chartData.data = dataSixMonth
         }
       )
     }
   }
 
   periodChange(event){
-    this.changePeriod(event.value)
+    this.changePeriod(DataSize[event.value as string])
   }
 
 }
