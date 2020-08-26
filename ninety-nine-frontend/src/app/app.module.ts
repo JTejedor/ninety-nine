@@ -29,7 +29,9 @@ import { IbanSelectorComponent } from './iban-transfer/iban-selector/iban-select
 import { IbanSelectorService } from './iban-transfer/iban-selector/iban-selector.service';
 import { IbanLastTransfersViewComponent } from './iban-transfer/iban-last-transfers-view/iban-last-transfers-view.component'
 import { MatTableModule } from '@angular/material/table'
-import { IbanLastTransfersViewService } from './iban-transfer/iban-last-transfers-view/iban-last-transfers-view.service'
+import { IbanLastTransfersViewService } from './iban-transfer/iban-last-transfers-view/iban-last-transfers-view.service';
+import { CurrencyDisplayComponent } from './currency-display/currency-display/currency-display.component'
+import { CurrencyProviderService } from './currency-display/currency-provider.service';
 
 @NgModule({
   declarations: [
@@ -42,7 +44,8 @@ import { IbanLastTransfersViewService } from './iban-transfer/iban-last-transfer
     MaxTransferHitComponent,
     MaxAmountHitComponent,
     IbanSelectorComponent,
-    IbanLastTransfersViewComponent
+    IbanLastTransfersViewComponent,
+    CurrencyDisplayComponent
   ],
   imports: [
     BrowserModule,
@@ -66,7 +69,8 @@ import { IbanLastTransfersViewService } from './iban-transfer/iban-last-transfer
     MaxTransferHitService,
     MaxAmountHitService,
     IbanSelectorService,
-    IbanLastTransfersViewService
+    IbanLastTransfersViewService,
+    CurrencyProviderService
   ],
   bootstrap: [AppComponent]
 })
