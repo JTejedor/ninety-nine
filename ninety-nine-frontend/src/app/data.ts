@@ -7,6 +7,9 @@
 //  "count": 14699
 //}
 
+export interface IdData{
+  id:string
+}
 
 export interface DayId {
   year: number;
