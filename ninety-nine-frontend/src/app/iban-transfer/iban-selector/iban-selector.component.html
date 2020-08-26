@@ -1,0 +1,6 @@
+<mat-form-field class="iban-width" appearance="fill">
+  <mat-label class="margin-right">Choose an IBAN</mat-label>
+  <mat-select (selectionChange)="onIbanChange($event)">
+    <mat-option *ngFor="let iban of ibans" [value]="iban">{{iban}}</mat-option>
+  </mat-select>
+</mat-form-field>
