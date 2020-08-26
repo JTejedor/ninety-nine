@@ -32,7 +32,7 @@ fun main() {
     println("                         _/ |")
     println("                        |___/")
     println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-    println("+++++++++TRANSFER BACKEND v 1.0.0++++++++++")
+    println("+++++++++TRANSFER BACKEND v 1.0.1++++++++++")
 
     SpringApplication.run(Application::class.java)
 
