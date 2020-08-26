@@ -18,6 +18,12 @@ import { YearTransferViewerService } from './transfer-charts/year-chart/service/
 import { MonthChartComponent } from './transfer-charts/month-chart/month-chart.component';
 import { MonthTransferViewerService } from './transfer-charts/month-chart/service/month-transfer-viewer.service';
 import {MatDividerModule} from '@angular/material/divider';
+import { GenericMonthHitComponent } from './month-hits/generic-month-hit/generic-month-hit.component';
+import { GenericMonthHitService } from './month-hits/generic-month-hit.service';
+import { MaxTransferHitComponent } from './month-hits/max-transfer-hit/max-transfer-hit.component';
+import { MaxTransferHitService } from './month-hits/max-transfer-hit/max-transfer-hit.service';
+import { MaxAmountHitComponent } from './month-hits/max-amount-hit/max-amount-hit.component'
+import { MaxAmountHitService } from './month-hits/max-amount-hit/max-amount-hit.service'
 
 @NgModule({
   declarations: [
@@ -25,7 +31,10 @@ import {MatDividerModule} from '@angular/material/divider';
     DayChartComponent,
     YearChartComponent,
     GenericChartComponent,
-    MonthChartComponent
+    MonthChartComponent,
+    GenericMonthHitComponent,
+    MaxTransferHitComponent,
+    MaxAmountHitComponent
   ],
   imports: [
     BrowserModule,
@@ -42,7 +51,10 @@ import {MatDividerModule} from '@angular/material/divider';
     DayTransferViewerService,
     ChartHttpProviderService,
     YearTransferViewerService,
-    MonthTransferViewerService
+    MonthTransferViewerService,
+    GenericMonthHitService,
+    MaxTransferHitService,
+    MaxAmountHitService
   ],
   bootstrap: [AppComponent]
 })
