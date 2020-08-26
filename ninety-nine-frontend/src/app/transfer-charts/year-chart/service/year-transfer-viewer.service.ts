@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { YearId, CountView, CountData } from 'src/app/data';
 import { Converter, ChartHttpProviderService } from '../../service/chart-http-provider.service';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 class YearConverter implements Converter<YearId>{
   convertArray(countDataArray: CountData<YearId>[]): CountView[] {
@@ -23,7 +24,7 @@ class YearConverter implements Converter<YearId>{
 })
 export class YearTransferViewerService {
 
-  private readonly url: string = "http://localhost:8080/count/year"
+  private readonly url: string = environment.apiUrl+"/count/year"
   private readonly converter: Converter<YearId> = new YearConverter();
 
   constructor(private chartHttpService: ChartHttpProviderService) { }

@@ -1,17 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-export interface IdData{
-  id:string
-}
+import { IdData } from 'src/app/data';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class IbanSelectorService {
 
-  private readonly url = "http://localhost:8080/iban"
+  private readonly url = environment.apiUrl+"/iban"
 
   constructor(private http: HttpClient) { }
 

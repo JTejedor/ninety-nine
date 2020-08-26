@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 export interface Transfer{
   iban: string;
@@ -15,8 +16,7 @@ export interface Transfer{
   providedIn: 'root'
 })
 export class IbanLastTransfersViewService {
-
-  private readonly url = "http://localhost:8080/iban/transfers"
+  private readonly url = environment.apiUrl + "/iban/transfers"
 
   constructor(private http: HttpClient) { 
 

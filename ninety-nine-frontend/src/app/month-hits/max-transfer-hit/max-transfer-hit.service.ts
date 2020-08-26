@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { GenericMonthHitService } from '../generic-month-hit.service';
 import { MonthId } from 'src/app/data';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 export interface MaxTransferData{
   id: MonthId,
@@ -13,7 +14,7 @@ export interface MaxTransferData{
 })
 export class MaxTransferHitService {
 
-  private readonly url: string = "http://localhost:8080/month/transfer-count-hit"
+  private readonly url: string = environment.apiUrl+"/month/transfer-count-hit"
 
   constructor(private genericHitService: GenericMonthHitService) { }
 

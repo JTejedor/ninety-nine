@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CountView, CountData, DayId } from "src/app/data"
 import { ChartHttpProviderService, Converter } from '../../service/chart-http-provider.service';
+import { environment } from 'src/environments/environment';
 
 class DayConverter implements Converter<DayId>{
   convertArray(countDataArray: CountData<DayId>[]): CountView[] {
@@ -23,7 +24,7 @@ class DayConverter implements Converter<DayId>{
 })
 export class DayTransferViewerService {
 
-  private readonly url: string = "http://localhost:8080/count/day"
+  private readonly url: string = environment.apiUrl+"/count/day"
   private readonly converter: Converter<DayId> = new DayConverter();
 
   constructor(private chartHttpService: ChartHttpProviderService) { }
