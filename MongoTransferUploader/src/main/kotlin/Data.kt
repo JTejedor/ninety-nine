@@ -1,19 +1,28 @@
 package com.ninety.nine.main.mongouploader
 
 import org.bson.types.ObjectId
-import org.iban4j.Iban
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.index.CompoundIndex
+import org.springframework.data.mongodb.core.index.CompoundIndexes
+import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.LocalDateTime
 import java.util.*
 
 @Document(collection = "transfers")
+@CompoundIndexes(value = [
+    CompoundIndex(name = "iban_timestamp", def = "{'iban' : -1, 'timestamp': -1}"),
+    CompoundIndex(name = "currency_timestamp", def = "{'currency' : -1, 'timestamp': -1}")
+])
 data class Transfer(
     @Id
     var id: ObjectId?,
+    @Indexed
     var timestamp: LocalDateTime,
+    @Indexed
     var iban: String,
     var nif: String,
+    @Indexed
     var currency: String,
     var amount: Double,
     var eurConversion: Double
@@ -37,10 +46,10 @@ data class GlobalStatistics(
     var globalSuccessRatio: Double,
     var globalSuccessTransfers: Long,
     var globalFailedTransfers: Long
-){
-    companion object{
-        fun emptyStatistics(): GlobalStatistics{
-            return GlobalStatistics(null,"",0.00,0,0)
+) {
+    companion object {
+        fun emptyStatistics(): GlobalStatistics {
+            return GlobalStatistics(null, "", 0.00, 0, 0)
         }
     }
 }
