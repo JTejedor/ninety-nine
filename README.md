@@ -15,6 +15,12 @@ Download the project directly through git clone and use docker compose.
  cd ninety-nine
  docker-compose -f ninety-nine.yml up
   ```
+In your favorite browser, navigate to this url:
+
+http://localhost:4200/
+
+Clarification Note: Due to the transfer uploader component (component to deploy transfers from FTP server to Mongo every 5 minutes) has an external dependency related to monetary exchange, the initial deploy is a little bit slow, so I recommend wait 30 seconds or so, to query from the frontend. Anyway, press F5 to refresh until data is uploaded properly (sorry for this inconvenience).
+
 And to ending the evaluation, just press CTRL+C and run this:
 
 ```bash
@@ -33,12 +39,12 @@ As a build automation tool, I choose Gradle 6.6, I am not sure if ninenty-nine i
 
 As frontend technology, Angular 9 is used because I have enough experience using this framework, to create quickly a proper and interesting view of the whole project.
 
-Finally, but not less important, as you can see, I choose git as version control system. Absolutely.
+I choose git as version control system. Absolutely.
+
+I have work with IntelliJ as IDE for Kotlin and Visual Studio Code for Angular.
+Each Kotlin project is ready to be opened using Intellij, as well the angular project is ready to be opened with Visual Studio Code.
 
 I try to follow gitflow approach with github pull request to merge over develop and master (with just one reviewer, me). Creating branches for each new feature or to fix some problems, as gitflow suggested. I have emphasized my effort in the creation of the commit messages
-
-Clarification Note: Due the transfer uploader component (component to deploy transfers from FTP server to Mongo each 5 minutes) has an external dependency related to monetary exchange, in order to convert each currency in EUR, the initial deploy is a little bit slow, so I recommend wait 30 seconds or so, to query from the frontend. Anyway, press F5 to refresh until data is uploaded properly (sorry for this inconvenience).
-
 
 ## Design
 
