@@ -3,12 +3,9 @@ version: "3.5"
 services:
 
   ftpd-server:
-    image: stilliard/pure-ftpd
+    image: jtejedor/ninety-nine:1.0.0-ftpserver
     container_name: ftp-server
     hostname: ftp-server
-    volumes:
-      - "/tmp/data-ftp:/home/username/"
-      - "/tmp/passwd-ftp:/etc/pure-ftpd/passwd"
     environment:
       PUBLICHOST: "ftp-server" #Related to Passive Mode
       FTP_USER_NAME: ninetynine
@@ -70,6 +67,7 @@ services:
     depends_on:
       - ftpd-server
       - mongodb
+      - tansfer-uploader
     links:
       - ftpd-server
       - mongodb
@@ -97,11 +95,9 @@ services:
       - ninety_nine_net
 
   frontend:
-    image: jtejedor/ninetynine:1.0.0-frontend
+    image: jtejedor/ninety-nine:1.0.0-frontend
     container_name: frontend
     depends_on:
-      - transfer-backend
-    links:
       - transfer-backend
     ports:
       - "4200:80"

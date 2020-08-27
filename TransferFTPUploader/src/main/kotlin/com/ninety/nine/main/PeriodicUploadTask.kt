@@ -14,7 +14,7 @@ class PeriodicUploadTask(
     transferConfiguration: TransferConfiguration
 ) {
     companion object {
-        const val UPLOAD_TIMEOUT: Long = 1000 * 60 * 3//3 minutes
+        const val UPLOAD_TIMEOUT: Long = 1000 * 60 * 10//10 minutes
     }
 
     init {

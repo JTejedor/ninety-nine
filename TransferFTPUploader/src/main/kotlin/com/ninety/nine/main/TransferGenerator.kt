@@ -196,7 +196,7 @@ class CurrencyAmountCustomGenerator(configuration: TransferConfiguration) :
     private final val amount = configuration.maxAmount
     override fun generateWell(): String {
         val rawNumber = ThreadLocalRandom.current().nextDouble(
-            0.0,
+            10.0,
             amount
         )
         var bd: BigDecimal = BigDecimal.valueOf(rawNumber)
