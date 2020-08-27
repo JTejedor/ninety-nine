@@ -15,6 +15,12 @@ Download the project directly through git clone and use docker compose.
  cd ninety-nine
  docker-compose -f ninety-nine.yml up
   ```
+And to ending the evaluation, just press CTRL+C and run this:
+
+```bash
+docker-compose -f ninety-nine.yml down
+ ```
+
 Enjoy ;-)
 
 ## Overview
@@ -91,13 +97,17 @@ The created docker container to host this component is based on node-alpine to b
 
   The timestamp of each transfer is the original name of the file reformatted to transform in LocalDateTime.
 
+  Instead of download the whole file, and process after, the file is downloader line per line using streams to avoid meaningless memory use.
+
   Finally, to maintain consistency in the sum of transfer amounts, an additional field is created to store the conversion to euros of that amount. Otherwise, it was too expensive to convert from a mongo query or meaningless amounts would be added. As consequence, an external dependency, to perform properly the exchange, is added, [JSR 354](https://jcp.org/en/jsr/detail?id=354).
 
 ### V. FTP server
 
-  This is another request for this challenge, create a FTP server in your machine or anyway to upload files with the required characteristics. A ftp container was chosen to deploy together with rest of components. The selected FTP Server was an image of [pure ftpd server](https://www.pureftpd.org/project/pure-ftpd/) with capacity for 5 simultaneous clients and a single registered user.
+  This is another request for this challenge, create a FTP server in your machine or anyway to upload files with the required characteristics. The selected FTP Server was an image of [pure ftpd server](https://www.pureftpd.org/project/pure-ftpd/) with capacity for 5 simultaneous clients and a single registered user.
 
   I prefer left a persistent volume in /tmp/ftp-data to facilitate consecutive tests and to have enough data. its deletion is recommended after evaluate this submission.
+
+  Update note: To ensure that the system appears fully operational at first, I have uploaded some initial data to the FTP server image, so that the frontend already displays existing data, after mongo uploader starts and processes this first wave. It is in github, if you would like to see some results of FTP Uploader.
 
 ### VI. File FTP uploader
 
@@ -105,7 +115,9 @@ The created docker container to host this component is based on node-alpine to b
 
   This is probably the least important component, but it has been a lot of fun to create a consistent and random process that maintains acceptable success rates.
 
-  To avoid large memory loads, a file is created and then uploaded to the server, instead of creating everything in memory.  
+  To avoid large memory loads, a file is created and then uploaded to the server, instead of creating everything in memory.
+
+  This component creates up to 20 files per month (it is a random number between 1 to 20), during the last 5 years, starting from the current month. Every ten minutes. It is a periodic task too.
 
   Some aspects to consider in the random creation:
 
@@ -113,10 +125,12 @@ The created docker container to host this component is based on node-alpine to b
   * The number of people is configurable too.
   * There is a possibility to fail for each part of the transfer-line (configurable).
   * There is a possibility to fail for each transfer (configurable also).
-  * The amount related with the transfer change of position randomly third or five position (configurable).
+  * The amount related with the transfer change of position randomly third or five position (configurable). And it starts in 10.00
   * The currencies are also configurable by environment variable.
 
- To know which parameter are involved in the random creation, see ninenity-nine.yml file
+ To know which parameter are involved in the random criteria, see ninenity-nine.yml file
+ Finally, this component is prepared to create large files, for this, it is recommended to uncomment the environment variable called JAVA_OPTS, in order to increase the JVM memory of the container to allow it to be feasible
+
 
 ## Conclusions
 
